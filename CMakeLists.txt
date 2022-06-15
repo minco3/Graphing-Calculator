@@ -61,18 +61,8 @@ ADD_EXECUTABLE(main
     ${SOURCE_FILES}
 )
 
-ADD_EXECUTABLE(basic_test
-    _tests/_test_files/basic_test.cpp
-    ${SOURCE_FILES}
-)
-
-# ADD_EXECUTABLE(testA
-#     _tests/_test_files/testA.cpp
-#     ${SOURCE_FILES}
-# )
-
-ADD_EXECUTABLE(testB
-    _tests/_test_files/testB.cpp
+ADD_EXECUTABLE(myTest
+    _tests/_test_files/myTest.cpp
     ${SOURCE_FILES}
 )
 
@@ -86,17 +76,14 @@ ADD_EXECUTABLE(bouncingBalls
     ${SOURCE_FILES}
 )
 
-TARGET_LINK_LIBRARIES(basic_test gtest)
-# TARGET_LINK_LIBRARIES(testA gtest)
-TARGET_LINK_LIBRARIES(testB gtest)
+TARGET_LINK_LIBRARIES(myTest gtest)
+
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake_modules")
 find_package(SFML REQUIRED system window graphics network audio)
 if (SFML_FOUND)
     include_directories(${SFML_INCLUDE_DIR})
     target_link_libraries(main ${SFML_LIBRARIES})
-    target_link_libraries(basic_test ${SFML_LIBRARIES})
-    target_link_libraries(testB ${SFML_LIBRARIES})
     target_link_libraries(randomSquares ${SFML_LIBRARIES})
     target_link_libraries(bouncingBalls ${SFML_LIBRARIES})
 endif()
