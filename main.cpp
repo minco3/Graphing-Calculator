@@ -3,8 +3,10 @@
 #include <SFML/Window.hpp>
 #include <time.h>
 #include <cstdlib>
-#include <random>
 #include <vector>
+
+#include "includes/objects/circle.h"
+#include "includes/random/random.h"
 
 const int SCREEN_WIDTH = 1000;
 const int SCREEN_HEIGHT = 1000;
@@ -14,21 +16,15 @@ const int CELL_SIZE = 5;
 
 using namespace std;
 
-int random(int x, int y) { // too slow
-    random_device rd;
-    mt19937 mt(rd());
-    uniform_int_distribution<int> dist(x,y);
-    return dist(mt);
-    
-}
-
 int fastrand(int x) { 
         return rand()%x;
 } 
 
 int main()
 {
-    int framerate = 8;
+    int framerate = 60;
+
+    sf::FloatRect visibleArea;
 
     srand(time(NULL));
     //----------S E T U P ------------------------------:
@@ -62,31 +58,19 @@ int main()
     sf::Clock clock;
 
     sf::Font font;
-    font.loadFromFile("./CascadiaCode-Regular.ttf");
-
-
-    // define a 120x50 rectangle
-    vector<vector<sf::RectangleShape>> rectangles(GRID_WIDTH);
-    for (int x=0; x<GRID_WIDTH; x++) {
-        for (int y=0; y<GRID_HEIGHT; y++) {
-            rectangles[x].push_back(sf::RectangleShape(sf::Vector2f(SCREEN_WIDTH/GRID_WIDTH, SCREEN_HEIGHT/GRID_HEIGHT)));
-            rectangles[x][y].move(sf::Vector2f(SCREEN_WIDTH/GRID_WIDTH*x, SCREEN_HEIGHT/GRID_HEIGHT*y));
-        }
-    }
+    font.loadFromFile("./CascadiaCode-Regular.ttf");   
     sf::Text fpsCounter("0", font);
 
-    // change the size to 100x100
-    //rectangle.setSize(sf::Vector2f(10, 10));
-    //. . . . . . . . . . . . . . . . . . . . . . . . . . .
-
+    vector<Circle> circles;
+    circles.emplace_back();
 
 
     // run the program as long as the window is open
     // this is your main loop:
     while (window.isOpen()){
         window.setFramerateLimit(framerate);
-        fpsCounter.setString(to_string(1000/clock.getElapsedTime().asMilliseconds()));
-        clock.restart();
+        sf::Time elapsed = clock.restart();
+        fpsCounter.setString(to_string(1000000/elapsed.asMicroseconds()));
         
         // check all the window's events that were triggered since the last iteration of the loop
         sf::Event event;
@@ -106,11 +90,11 @@ int main()
                 window.close();
                 break;
 
-                // key pressed
-            case sf::Event::Resized:
-                std::cout << "new width: " << event.size.width << std::endl;
-                std::cout << "new height: " << event.size.height << std::endl;
+            case sf::Event::MouseMoved:
+                if(sf::Mouse::isButtonPressed(sf::Mouse::Left))
+                    circles.emplace_back(event.mouseMove.x, event.mouseMove.y);
                 break;
+                // key pressed
             case sf::Event::KeyPressed:
                 cout << "key " << event.key.code << " was pressed..."<<endl;
                 break;
@@ -120,9 +104,10 @@ int main()
                     std::cout << "the right button was pressed" << std::endl;
                     std::cout << "mouse x: " << event.mouseButton.x << std::endl;
                     std::cout << "mouse y: " << event.mouseButton.y << std::endl;
+                    std::cout << "window size " << window.getSize().x << ", " << window.getSize().y << std::endl;
                 }
-                else
-                    std::cout<<"left button?"<<std::endl;
+                else if (event.mouseButton.x<window.getSize().x&&event.mouseButton.y<window.getSize().y)
+                    //circles.emplace_back(event.mouseButton.x, event.mouseButton.y);
                 break;
             case sf::Event::MouseWheelScrolled:
                 framerate+=event.mouseWheelScroll.delta;
@@ -133,18 +118,20 @@ int main()
             case sf::Event::GainedFocus:
                 framerate*=2;
                 break;
+            case sf::Event::Resized:
+                // update the view to the new size of the window
+                visibleArea = sf::FloatRect(0, 0, event.size.width, event.size.height);
+                window.setView(sf::View(visibleArea));
             default:
                 break;
             }
         }
 
+
         // you HAVE TO clear your window on every iteration of this while.
         window.clear();
-        for (int x=0; x<GRID_WIDTH; x++) {
-            for (int y=0; y<GRID_HEIGHT; y++) {
-                rectangles[x][y].setFillColor(sf::Color(fastrand(255), fastrand(255), fastrand(255)));
-                window.draw(rectangles[x][y]);
-            }
+        for (int i=0; i<circles.size(); i++) {
+            circles[i].draw(window, elapsed);
         }
         window.draw(fpsCounter);
         window.display();
