@@ -2,22 +2,41 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 #include <time.h>
+#include <cstdlib>
+#include <random>
+#include <vector>
 
-const int SCREEN_WIDTH = 800;
+const int SCREEN_WIDTH = 1000;
 const int SCREEN_HEIGHT = 1000;
-const int GRID_WIDTH = 200;
-const int GRID_HEIGHT = 110;
+const int GRID_WIDTH = 100;
+const int GRID_HEIGHT = 100;
 const int CELL_SIZE = 5;
 
 using namespace std;
 
+int random(int x, int y) { // too slow
+    random_device rd;
+    mt19937 mt(rd());
+    uniform_int_distribution<int> dist(x,y);
+    return dist(mt);
+    
+}
+
+int fastrand(int x) { 
+        return rand()%x;
+} 
+
 int main()
 {
+    int framerate = 8;
+
+    srand(time(NULL));
     //----------S E T U P ------------------------------:
 
     //declare a window object:
     sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT),
-                                                      "JAVA IS FOR WUSSIES!");
+                            "JAVA IS FOR WUSSIES!"
+                            );
     //
     //VideoMode class has functions to detect screen size etc.
     //RenderWindow constructor has a third arguments to set style
@@ -30,7 +49,7 @@ int main()
     //                                                  "SFML window!");
     //
 
-    window.setFramerateLimit(3);
+    window.setFramerateLimit(framerate);
 
     //this is where we keep all the shapes.
     //sf::RectangleShape shapeArray[GRID_HEIGHT][GRID_WIDTH];
@@ -40,20 +59,22 @@ int main()
     window.setVerticalSyncEnabled(true);
     //Application runs at the same freq as monitor
 
-    //. . . . . . . SHAPES ............
-    //this is how you would declare and manipulate shapes:
-    sf::CircleShape circle(250.f);
-    circle.setFillColor(sf::Color::Green);
-    // set a 10-pixel wide orange outline
-    circle.setOutlineThickness(10);
-    circle.setOutlineColor(sf::Color(250, 150, 100));
-    //circle.move(sf::Vector2f(200,300));
+    sf::Clock clock;
+
+    sf::Font font;
+    font.loadFromFile("./CascadiaCode-Regular.ttf");
 
 
     // define a 120x50 rectangle
-    sf::RectangleShape rectangle(sf::Vector2f(720, 500));
-    rectangle.move(sf::Vector2f(300,20));
-    rectangle.setFillColor(sf::Color::Magenta);
+    vector<vector<sf::RectangleShape>> rectangles(GRID_WIDTH);
+    for (int x=0; x<GRID_WIDTH; x++) {
+        for (int y=0; y<GRID_HEIGHT; y++) {
+            rectangles[x].push_back(sf::RectangleShape(sf::Vector2f(SCREEN_WIDTH/GRID_WIDTH, SCREEN_HEIGHT/GRID_HEIGHT)));
+            rectangles[x][y].move(sf::Vector2f(SCREEN_WIDTH/GRID_WIDTH*x, SCREEN_HEIGHT/GRID_HEIGHT*y));
+        }
+    }
+    sf::Text fpsCounter("0", font);
+
     // change the size to 100x100
     //rectangle.setSize(sf::Vector2f(10, 10));
     //. . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -63,10 +84,13 @@ int main()
     // run the program as long as the window is open
     // this is your main loop:
     while (window.isOpen()){
-        cout<<"looooping..."<<endl;
+        window.setFramerateLimit(framerate);
+        fpsCounter.setString(to_string(1000/clock.getElapsedTime().asMilliseconds()));
+        clock.restart();
+        
         // check all the window's events that were triggered since the last iteration of the loop
-
         sf::Event event;
+        
 
         //go through all the pending events: keyboard, mouse, close, resize, etc.
         //pollEvent and waitEvent are the only two functions that can fill event
@@ -83,9 +107,12 @@ int main()
                 break;
 
                 // key pressed
+            case sf::Event::Resized:
+                std::cout << "new width: " << event.size.width << std::endl;
+                std::cout << "new height: " << event.size.height << std::endl;
+                break;
             case sf::Event::KeyPressed:
-                cout<<"a key was pressed..."<<endl;
-                //...
+                cout << "key " << event.key.code << " was pressed..."<<endl;
                 break;
             case sf::Event::MouseButtonReleased:
                 if (event.mouseButton.button == sf::Mouse::Right)
@@ -97,6 +124,15 @@ int main()
                 else
                     std::cout<<"left button?"<<std::endl;
                 break;
+            case sf::Event::MouseWheelScrolled:
+                framerate+=event.mouseWheelScroll.delta;
+                break;
+            case sf::Event::LostFocus:
+                framerate/=2;
+                break;
+            case sf::Event::GainedFocus:
+                framerate*=2;
+                break;
             default:
                 break;
             }
@@ -104,10 +140,15 @@ int main()
 
         // you HAVE TO clear your window on every iteration of this while.
         window.clear();
-
-        window.draw(circle); //draw the circle on the window
-        window.draw(rectangle);
+        for (int x=0; x<GRID_WIDTH; x++) {
+            for (int y=0; y<GRID_HEIGHT; y++) {
+                rectangles[x][y].setFillColor(sf::Color(fastrand(255), fastrand(255), fastrand(255)));
+                window.draw(rectangles[x][y]);
+            }
+        }
+        window.draw(fpsCounter);
         window.display();
+
     }
 
     cout<<"------ NORMAL TERMINATION: WINDOW CLOSED!"<<endl;
