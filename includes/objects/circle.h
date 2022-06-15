@@ -35,17 +35,17 @@ void Circle::draw(sf::RenderWindow& window, sf::Time& elapsed) {
     sf::Int64 deltaT = elapsed.asMicroseconds();
     sf::Vector2f delta(vector.x*deltaT/10000, vector.y*deltaT/10000);
     pos += delta;
-    if (pos.x<=0||pos.x>=window.getSize().x-circleSize*2) {
+    if (pos.x<=0||pos.x>=window.getView().getSize().x-circleSize*2) {
         vector.x = -vector.x;
     }
-    if (pos.y<=0||pos.y>=window.getSize().y-circleSize*2) {
+    if (pos.y<=0||pos.y>=window.getView().getSize().y-circleSize*2) {
         vector.y = -vector.y;            
     }
 
-    if (pos.x>window.getSize().x-circleSize*2) { // edge bug
-        pos.x=window.getSize().x-circleSize*2;
-    } else if (pos.y>window.getSize().y-circleSize*2) {
-        pos.y=window.getSize().y-circleSize*2;
+    if (pos.x>window.getView().getSize().x-circleSize*2) { // edge bug
+        pos.x=window.getView().getSize().x-circleSize*2;
+    } else if (pos.y>window.getView().getSize().y-circleSize*2) {
+        pos.y=window.getView().getSize().y-circleSize*2;
     } else if (pos.x<0) {
         pos.x = 0;
     } else if (pos.y<0) {

@@ -16,34 +16,31 @@ const int CELL_SIZE = 5;
 
 using namespace std;
 
-int fastrand(int x) { 
-        return rand()%x;
-} 
-
 int main()
 {
+
+    sf::View graph(sf::FloatRect(0, 0, SCREEN_WIDTH*0.7f, SCREEN_HEIGHT));
+    sf::View sidePanel(sf::FloatRect(SCREEN_WIDTH*0.7f, 0, SCREEN_WIDTH*0.3f, SCREEN_HEIGHT));
+    
+    graph.setViewport(sf::FloatRect(0, 0, 0.7f, 1));
+    sidePanel.setViewport(sf::FloatRect(0.7f, 0, 0.3f, 1));
+
     int framerate = 60;
 
     sf::FloatRect visibleArea;
+
+    sf::RectangleShape grayRect(sidePanel.getSize());
+    grayRect.setFillColor(sf::Color(100, 100, 100));
+    sf::RectangleShape darkerGrayRect(graph.getSize());
+    darkerGrayRect.setFillColor(sf::Color(70, 70, 70));
 
     srand(time(NULL));
     //----------S E T U P ------------------------------:
 
     //declare a window object:
     sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT),
-                            "JAVA IS FOR WUSSIES!"
+                            "Graphing Calculator"
                             );
-    //
-    //VideoMode class has functions to detect screen size etc.
-    //RenderWindow constructor has a third arguments to set style
-    //of the window: resize, fullscreen etc.
-    //
-    //or...
-    // you could do this:
-    //sf::RenderWindow window;
-    //window.create(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT),
-    //                                                  "SFML window!");
-    //
 
     window.setFramerateLimit(framerate);
 
@@ -68,6 +65,7 @@ int main()
     // run the program as long as the window is open
     // this is your main loop:
     while (window.isOpen()){
+
         window.setFramerateLimit(framerate);
         sf::Time elapsed = clock.restart();
         fpsCounter.setString(to_string(1000000/elapsed.asMicroseconds()));
@@ -104,7 +102,7 @@ int main()
                     std::cout << "the right button was pressed" << std::endl;
                     std::cout << "mouse x: " << event.mouseButton.x << std::endl;
                     std::cout << "mouse y: " << event.mouseButton.y << std::endl;
-                    std::cout << "window size " << window.getSize().x << ", " << window.getSize().y << std::endl;
+                    std::cout << "sidepanel size " << sidePanel.getSize().x << ", " << sidePanel.getSize().y << std::endl;
                 }
                 else if (event.mouseButton.x<window.getSize().x&&event.mouseButton.y<window.getSize().y)
                     //circles.emplace_back(event.mouseButton.x, event.mouseButton.y);
@@ -122,6 +120,8 @@ int main()
                 // update the view to the new size of the window
                 visibleArea = sf::FloatRect(0, 0, event.size.width, event.size.height);
                 window.setView(sf::View(visibleArea));
+                graph.setViewport(sf::FloatRect(0, 0, 0.7f, 1));
+                sidePanel.setViewport(sf::FloatRect(0.7f, 0, 0.3f, 1));
             default:
                 break;
             }
@@ -130,9 +130,13 @@ int main()
 
         // you HAVE TO clear your window on every iteration of this while.
         window.clear();
+        window.setView(graph);
+        window.draw(darkerGrayRect);
         for (int i=0; i<circles.size(); i++) {
             circles[i].draw(window, elapsed);
         }
+        window.setView(sidePanel);
+        window.draw(grayRect);
         window.draw(fpsCounter);
         window.display();
 
