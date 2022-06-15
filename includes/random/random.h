@@ -12,4 +12,8 @@ int random(int x, int y) { // generates a random int between x and y
     return dist(mt);
 }
 
+int fastrand(int x) { 
+        return rand()%x;
+} 
+
 #endif //RANDOM_H

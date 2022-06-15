@@ -5,8 +5,8 @@
 #include <cstdlib>
 #include <vector>
 
-#include "includes/objects/circle.h"
-#include "includes/random/random.h"
+#include "../../includes/objects/circle.h"
+#include "../../includes/random/random.h"
 
 const int SCREEN_WIDTH = 1000;
 const int SCREEN_HEIGHT = 1000;
@@ -15,10 +15,6 @@ const int GRID_HEIGHT = 100;
 const int CELL_SIZE = 5;
 
 using namespace std;
-
-int fastrand(int x) { 
-        return rand()%x;
-} 
 
 int main()
 {

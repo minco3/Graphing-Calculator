@@ -76,6 +76,16 @@ ADD_EXECUTABLE(testB
     ${SOURCE_FILES}
 )
 
+ADD_EXECUTABLE(randomSquares
+_side_projects/_side_project_files/randomSquares.cpp
+${SOURCE_FILES}
+)
+
+ADD_EXECUTABLE(bouncingBalls
+    _side_projects/_side_project_files/bouncingBalls.cpp
+    ${SOURCE_FILES}
+)
+
 TARGET_LINK_LIBRARIES(basic_test gtest)
 # TARGET_LINK_LIBRARIES(testA gtest)
 TARGET_LINK_LIBRARIES(testB gtest)
@@ -87,4 +97,6 @@ if (SFML_FOUND)
     target_link_libraries(main ${SFML_LIBRARIES})
     target_link_libraries(basic_test ${SFML_LIBRARIES})
     target_link_libraries(testB ${SFML_LIBRARIES})
+    target_link_libraries(randomSquares ${SFML_LIBRARIES})
+    target_link_libraries(bouncingBalls ${SFML_LIBRARIES})
 endif()
