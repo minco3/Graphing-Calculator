@@ -76,6 +76,11 @@ ADD_EXECUTABLE(bouncingBalls
     ${SOURCE_FILES}
 )
 
+ADD_EXECUTABLE(bouncingBallsSidePanel
+    _side_projects/_side_project_files/bouncingBallsSidePanel.cpp
+    ${SOURCE_FILES}
+)
+
 TARGET_LINK_LIBRARIES(myTest gtest)
 
 
@@ -86,4 +91,5 @@ if (SFML_FOUND)
     target_link_libraries(main ${SFML_LIBRARIES})
     target_link_libraries(randomSquares ${SFML_LIBRARIES})
     target_link_libraries(bouncingBalls ${SFML_LIBRARIES})
+    target_link_libraries(bouncingBallsSidePanel ${SFML_LIBRARIES})
 endif()
