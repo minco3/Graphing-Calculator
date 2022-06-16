@@ -31,6 +31,7 @@ class Graph {
     vector<Queue <Token*>> expressions;
     vector<sf::CircleShape> dots;
     vector<sf::RectangleShape> lines;
+    float scale = 1;
 
 };
 
@@ -54,13 +55,15 @@ Graph::Graph() {
 }
 
 void Graph::plot() {
-    int lower_bound = -origin.getPosition().x, upper_bound = view.getSize().x-origin.getPosition().x;
+    int lower_bound = (-origin.getPosition().x)/CONST_SCALE*scale, upper_bound = (view.getSize().x-origin.getPosition().x)/CONST_SCALE*scale;
     for (int i=0; i<expressions.size(); i++) {
         Queue<Point> points = PlotExpression(expressions[i], lower_bound, upper_bound, (upper_bound-lower_bound)/res);
+
         if(points.empty()) return;
+
         for (Queue<Point>::Iterator it = points.begin(); it!=points.end(); it++) {
             sf::CircleShape circle(2);
-            circle.setPosition(sf::Vector2f(origin.getPosition().x+it->getVector().x, origin.getPosition().y+it->getVector().y));
+            circle.setPosition(sf::Vector2f(origin.getPosition().x+it->getVector().x*CONST_SCALE/scale, origin.getPosition().y+it->getVector().y*CONST_SCALE/scale));
             dots.push_back(circle);
         }
     }
@@ -68,7 +71,7 @@ void Graph::plot() {
     
 
 void Graph::reset() {
-    dots.empty();
+    dots.clear();
 }
 
 void Graph::draw(sf::RenderWindow& window) {
@@ -92,8 +95,11 @@ void Graph::resize(sf::Vector2f size) {
 
 void Graph::zoom(float factor, sf::Vector2i mousePos) {
     if (background.getGlobalBounds().contains(static_cast<sf::Vector2f>(mousePos))) {
-        std::cout << factor << std::endl;
+        if (factor<0) scale/= (-factor)/3;
+        else scale *= (factor+1)/3;
     }
+    reset();
+    plot();
 }
 
 void Graph::move(sf::Vector2f deltaPos) {

@@ -134,8 +134,6 @@ bool test_shunting_rpn(bool debug) {
   // release memory
   for (Queue<Token*>::Iterator it = infix.begin(); it != infix.end(); ++it)
     delete *it;
-  for (Queue<Token*>::Iterator it = postfix.begin(); it != postfix.end(); ++it)
-    delete *it;
     cout << "\n\n--------- SHUNTING RPN DONE ---------\n\n" << endl;
   return true;
 }
@@ -167,7 +165,7 @@ bool test_shunting_yard_new_funcs(bool debug = false) {
 
 }
 
-bool test_line(bool debug = false) {
+bool line_test(bool debug = false) {
   Queue<Token*> infix = strToInfix("X");
   ShuntingYard sy(infix);
   Queue<Token*> postfix = sy.postfix();
@@ -179,6 +177,15 @@ bool test_line(bool debug = false) {
       return false;
     }
   }
+  return true;
+}
+
+bool trig_test(bool debug = false) {
+  Queue<Token*> infix = strToInfix("sin(X)");
+  ShuntingYard sy(infix);
+  Queue<Token*> postfix = sy.postfix();
+  RPN rpn(postfix);
+  cout << rpn(10);
   return true;
 }
 
@@ -209,9 +216,15 @@ TEST(TEST_SHUNTING_YARD, newFunctionTest)
   EXPECT_EQ(success, true);
 }
 
-TEST(TEST_RPN, TestLine)
+TEST(TEST_SHUNTING_RPN, TestLine)
 {
-  bool success = test_line(debug);
+  bool success = line_test(debug);
+  EXPECT_EQ(success, true);
+}
+
+TEST(TEST_SHUNTING_RPN, TestTrig)
+{
+  bool success = trig_test(debug);
   EXPECT_EQ(success, true);
 }
 

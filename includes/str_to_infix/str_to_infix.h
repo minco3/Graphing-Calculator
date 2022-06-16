@@ -32,8 +32,20 @@ Queue<Token*> strToInfix(string str) {
                 word += str[i];
                 infix.push(new Operator(word));
                 break;
-            case 'X':
-                infix.push(new Function("X"));
+            case '(':
+                infix.push(new LeftParen);
+                break;
+            case ')':
+                infix.push(new RightParen);
+                break;
+            case 'a' ... 'z':
+            case 'A' ... 'Z':
+                if (str[i] == 'X') infix.push(new Function("X"));       
+                while ((str[i]>='a'&&str[i]<='z')||(str[i]>='A'&&str[i]<='Z')) {
+                    word+=str[i];
+                    i++;
+                }
+                infix.push(new Function(word));
                 break;
         } 
     }

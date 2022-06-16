@@ -36,6 +36,12 @@ double RPN::operator() (double value) { // used for running the alg
                 _function = static_cast<Function*>(_input.pop())->getFunction();
                 if (_function == "X")
                     _s.push(value);
+                else if (_function == "sin")
+                    _s.push(sin(_s.pop()));
+                else if (_function == "cos")
+                    _s.push(cos(_s.pop()));
+                else if (_function == "tan")
+                    _s.push(tan(_s.pop()));
                 break;
             default:
                 break;

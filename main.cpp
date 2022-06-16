@@ -41,7 +41,7 @@ int main()
     SidePanel sidePanel;
     Graph graph;
 
-    graph.addExpression("X");
+    graph.addExpression("sin(X)");
 
     bool mouse1 = false;
 

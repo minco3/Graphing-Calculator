@@ -49,12 +49,12 @@ Queue<Token*> ShuntingYard::postfix(const Queue<Token*>& input_q) {
                 break;
             case FUNCTION:
                 if (static_cast<Function*>(input.front())->getFunction()!="X") {
-                    while (!os.empty()&&
-                        os.top()->TypeOf()==FUNCTION
-                        ||os.top()->TypeOf()!=LPAREN) {
-                    output.push(os.pop());
-                }
-                os.push(input.pop());
+                    while (!os.empty())
+                        if (os.top()->TypeOf()==FUNCTION)
+                            output.push(os.pop());
+                        else break;
+
+                    os.push(input.pop());
                     break;
                 }
             default:

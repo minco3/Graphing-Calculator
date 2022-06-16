@@ -7,7 +7,10 @@ const int GRID_WIDTH = 100;
 const int GRID_HEIGHT = 100;
 const int CELL_SIZE = 5;
 
-const float res = 250.f;
+const float res = 1000.f;
+
+
+const int CONST_SCALE = 30;
 
 const float GRAPH_WIDTH_RATIO = 0.6f;
 
