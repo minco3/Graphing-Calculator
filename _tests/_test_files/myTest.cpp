@@ -166,13 +166,14 @@ bool test_shunting_yard_new_funcs(bool debug = false) {
 }
 
 bool line_test(bool debug = false) {
-  Queue<Token*> infix = strToInfix("X");
+  Queue<Token*> infix = strToInfix("X*5+2");
   ShuntingYard sy(infix);
   Queue<Token*> postfix = sy.postfix();
   RPN rpn(postfix);
   cout << rpn(1) << endl; // test 1
   for (int i=0; i<100; i++) {
-    if (rpn(i)!=i) {
+    if (rpn(i)!=i*5+2) {
+      cout << postfix;
       cout << i << ", " << rpn(i) << endl;
       return false;
     }

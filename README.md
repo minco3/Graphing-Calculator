@@ -18,7 +18,7 @@
 - Partly implemented:
   - what features have not been implemented
 
-<br><br>
+<br>lines<br>
 
 - Bugs
   - Known bugs

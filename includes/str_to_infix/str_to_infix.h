@@ -13,15 +13,17 @@
 #include "../token/rightparen.h"
 
 Queue<Token*> strToInfix(string str) {
+    const bool debug = false;
+    if (debug) std::cout << str << std::endl;
     Queue<Token*> infix;
     for (int i=0; i<str.length(); i++) {
         string word;
         switch (str[i]) {
             case '0' ... '9':
                 while (str[i]>='0'&&str[i]<='9'){
-                    word+=str[i];
-                    i++;
+                    word+=str[i++];
                 }
+                i--;
                 infix.push(new Integer(stoi(word)));
                 break;
             case '+':
@@ -30,6 +32,7 @@ Queue<Token*> strToInfix(string str) {
             case '/':
             case '^':
                 word += str[i];
+                if (debug) std::cout << word << std::endl;
                 infix.push(new Operator(word));
                 break;
             case '(':
@@ -40,14 +43,19 @@ Queue<Token*> strToInfix(string str) {
                 break;
             case 'a' ... 'z':
             case 'A' ... 'Z':
-                if (str[i] == 'X') infix.push(new Function("X"));       
-                while ((str[i]>='a'&&str[i]<='z')||(str[i]>='A'&&str[i]<='Z')) {
-                    word+=str[i];
-                    i++;
+                if (str[i] == 'X'|| str[i] == 'x') infix.push(new Function("X"));       
+                else {
+                    while ((str[i]>='a'&&str[i]<='z')||(str[i]>='A'&&str[i]<='Z')) {
+                        word+=str[i++];
+                    }
+                    i--;
+                    infix.push(new Function(word));
                 }
-                infix.push(new Function(word));
                 break;
-        } 
+            default:
+                break;
+        }
+        if (debug) std::cout << infix; 
     }
     return infix;
 }

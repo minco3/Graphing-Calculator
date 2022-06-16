@@ -63,7 +63,7 @@ void Graph::plot() {
 
         for (Queue<Point>::Iterator it = points.begin(); it!=points.end(); it++) {
             sf::CircleShape circle(2);
-            circle.setPosition(sf::Vector2f(origin.getPosition().x+it->getVector().x*CONST_SCALE/scale, origin.getPosition().y+it->getVector().y*CONST_SCALE/scale));
+            circle.setPosition(sf::Vector2f(origin.getPosition().x+it->getVector().x*CONST_SCALE/scale, origin.getPosition().y-it->getVector().y*CONST_SCALE/scale));
             dots.push_back(circle);
         }
     }
@@ -90,14 +90,23 @@ void Graph::draw(sf::RenderWindow& window) {
 
 void Graph::resize(sf::Vector2f size) {
         view.reset(sf::FloatRect(0,0,size.x*GRAPH_WIDTH_RATIO, size.y));
+        origin.setPosition(view.getSize()/2.f);
+        for (int i=0; i<2; i++) {
+            lines[i].setPosition(origin.getPosition());
+        }
         background.setSize(view.getSize());
+        reset();
+        plot();
 }
 
 void Graph::zoom(float factor, sf::Vector2i mousePos) {
     if (background.getGlobalBounds().contains(static_cast<sf::Vector2f>(mousePos))) {
         if (factor<0) scale/= (-factor)/3;
-        else scale *= (factor+1)/3;
+        else scale *= (factor+1)/5;
     }
+    if (scale<0.075) scale = 0.075;
+    if (scale>1000) scale = 1000;
+    std::cout << scale << std::endl;
     reset();
     plot();
 }
