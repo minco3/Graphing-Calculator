@@ -1,15 +1,13 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 
-const float GRAPH_WIDTH_RATIO = 0.6f;
-const int LOWER_BOUND = 10, UPPER_BOUND = 20;
-const sf::Color bgColor(70,70,70);
-
 #include <Vector>
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 
+#include "../str_to_infix/str_to_infix.h"
 #include "../constants/windowConstants.h"
+#include "../plot/plot.h"
 #include "../point/point.h"
 #include "../random/random.h"
 #include "../queue/MyQueue.h"
@@ -19,17 +17,20 @@ class Graph {
     public:
     Graph();
 
-    void plot(Queue<Point> &points);
+    void plot();
     void reset();
     void draw(sf::RenderWindow& window);
     void resize(sf::Vector2f size);
     void zoom(float factor, sf::Vector2i mousePos);
+    void move(sf::Vector2f deltaPos);
+    void addExpression(string str);
 
-    private:
+    sf::CircleShape origin;
     sf::View view;
     sf::RectangleShape background;
-    sf::RectangleShape shape;
+    vector<Queue <Token*>> expressions;
     vector<sf::CircleShape> dots;
+    vector<sf::RectangleShape> lines;
 
 };
 
@@ -37,20 +38,34 @@ Graph::Graph() {
     view.reset(sf::FloatRect(0,0, SCREEN_WIDTH*GRAPH_WIDTH_RATIO, SCREEN_HEIGHT));
     view.setViewport(sf::FloatRect(0,0,GRAPH_WIDTH_RATIO,1));
 
-    background.setSize(view.getSize());
-    background.setFillColor(bgColor);
-    std::cout << background.getGlobalBounds().width;
-}
+    origin = sf::CircleShape(5);
+    origin.setOrigin(origin.getRadius(), origin.getRadius());
+    origin.setPosition(view.getSize()/2.f);
 
-void Graph::plot(Queue<Point> &points) {
-    if(points.empty()) return;
-    for (Queue<Point>::Iterator it = points.begin(); it!=points.end(); it++) {
-        std::cout << it->getVector().y << std::endl; 
-        sf::CircleShape circle(3);
-        circle.setPosition(it->getVector());
-        dots.push_back(circle);
+    background.setSize(view.getSize());
+    background.setFillColor(graphColor);
+
+    lines.emplace_back(sf::Vector2f(background.getSize().x*3, 1));
+    lines.emplace_back(sf::Vector2f(1, background.getSize().y*3));
+    for (int i=0; i<2; i++) {
+        lines[i].setOrigin(lines[i].getSize()/2.f);
+        lines[i].setPosition(origin.getPosition());
     }
 }
+
+void Graph::plot() {
+    int lower_bound = -origin.getPosition().x, upper_bound = view.getSize().x-origin.getPosition().x;
+    for (int i=0; i<expressions.size(); i++) {
+        Queue<Point> points = PlotExpression(expressions[i], lower_bound, upper_bound, (upper_bound-lower_bound)/res);
+        if(points.empty()) return;
+        for (Queue<Point>::Iterator it = points.begin(); it!=points.end(); it++) {
+            sf::CircleShape circle(2);
+            circle.setPosition(sf::Vector2f(origin.getPosition().x+it->getVector().x, origin.getPosition().y+it->getVector().y));
+            dots.push_back(circle);
+        }
+    }
+}
+    
 
 void Graph::reset() {
     dots.empty();
@@ -59,13 +74,15 @@ void Graph::reset() {
 void Graph::draw(sf::RenderWindow& window) {
     window.setView(view);
     window.draw(background);
-    if (!dots.empty()) {
-        for (int i=0; i<dots.size(); i++) {
-            window.draw(dots[i]);
-        }
+    //window.draw(origin);
+    for (int i=0; i<dots.size(); i++) {
+        window.draw(dots[i]);
     }
-    window.draw(shape);
+    for (int i=0; i<lines.size(); i++) {
+        window.draw(lines[i]);
+    }
 
+    window.setView(window.getDefaultView());
 }
 
 void Graph::resize(sf::Vector2f size) {
@@ -77,6 +94,25 @@ void Graph::zoom(float factor, sf::Vector2i mousePos) {
     if (background.getGlobalBounds().contains(static_cast<sf::Vector2f>(mousePos))) {
         std::cout << factor << std::endl;
     }
+}
+
+void Graph::move(sf::Vector2f deltaPos) {
+    origin.move(deltaPos);
+    for (int i=0; i<dots.size(); i++) {
+        dots[i].move(deltaPos);
+    }
+    for (int i=0; i<lines.size(); i++) {
+        lines[i].move(deltaPos);
+    }
+    reset();
+    plot();
+}
+
+void Graph::addExpression(string str) {
+    Queue<Token*> infix = strToInfix(str);
+    ShuntingYard sy(infix);
+    expressions.push_back(sy.postfix());
+    plot();
 }
 
 

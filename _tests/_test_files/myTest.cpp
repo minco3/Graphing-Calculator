@@ -16,6 +16,7 @@
 #include "../../includes/token/token.h"
 #include "../../includes/shunting_yard/shunting_yard.h"
 #include "../../includes/rpn/rpn.h"
+#include "../../includes/str_to_infix/str_to_infix.h"
 //------------------------------------------------------------------------------------------
 
 using namespace std;
@@ -167,15 +168,16 @@ bool test_shunting_yard_new_funcs(bool debug = false) {
 }
 
 bool test_line(bool debug = false) {
-  Queue<Token*>postfix;
-  postfix.push(new Function("X"));
+  Queue<Token*> infix = strToInfix("X");
+  ShuntingYard sy(infix);
+  Queue<Token*> postfix = sy.postfix();
   RPN rpn(postfix);
   cout << rpn(1) << endl; // test 1
   for (int i=0; i<100; i++) {
     if (rpn(i)!=i) {
       cout << i << ", " << rpn(i) << endl;
       return false;
-    }  
+    }
   }
   return true;
 }
