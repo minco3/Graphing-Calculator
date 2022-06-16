@@ -5,7 +5,7 @@
 #include <cstdlib>
 #include <vector>
 
-#include "../../includes/objects/circle.h"
+#include "../../includes/objects/bouncingCircle.h"
 #include "../../includes/random/random.h"
 
 const int SCREEN_WIDTH = 1000;
@@ -21,6 +21,7 @@ using namespace std;
 int main()
 {
     int framerate = 60;
+    float zoom;
 
     sf::FloatRect visibleArea;
 

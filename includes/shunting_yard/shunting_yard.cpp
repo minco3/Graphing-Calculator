@@ -24,7 +24,7 @@ Queue<Token*> ShuntingYard::postfix(const Queue<Token*>& input_q) {
 
   // called by postfix() 
   Queue<Token*> ShuntingYard::shunting_yard() {
-    const bool debug = true;
+    const bool debug = false;
     Queue<Token*> input(queue), output;
     Stack<Token*> os; //operator stack
     while(!input.empty()) {

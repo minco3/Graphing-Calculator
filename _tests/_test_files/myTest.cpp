@@ -166,6 +166,20 @@ bool test_shunting_yard_new_funcs(bool debug = false) {
 
 }
 
+bool test_line(bool debug = false) {
+  Queue<Token*>postfix;
+  postfix.push(new Function("X"));
+  RPN rpn(postfix);
+  cout << rpn(1) << endl; // test 1
+  for (int i=0; i<100; i++) {
+    if (rpn(i)!=i) {
+      cout << i << ", " << rpn(i) << endl;
+      return false;
+    }  
+  }
+  return true;
+}
+
 //Lord help me! 
 bool debug = false;
 
@@ -189,8 +203,14 @@ TEST(TEST_SHUNTING_RPN, TestShuntingRPN)
 
 TEST(TEST_SHUNTING_YARD, newFunctionTest)
 {
-    bool success = test_shunting_yard_new_funcs(debug);
-    EXPECT_EQ(success, true);
+  bool success = test_shunting_yard_new_funcs(debug);
+  EXPECT_EQ(success, true);
+}
+
+TEST(TEST_RPN, TestLine)
+{
+  bool success = test_line(debug);
+  EXPECT_EQ(success, true);
 }
 
 int main(int argc, char **argv) 
