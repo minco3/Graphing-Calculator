@@ -7,8 +7,9 @@ const int GRID_WIDTH = 100;
 const int GRID_HEIGHT = 100;
 const int CELL_SIZE = 5;
 
-const float res = 1000.f;
+const float res = 2000.f;
 
+std::string fontPath = "../../NotoSans-Medium.ttf";
 
 const int CONST_SCALE = 30;
 

@@ -21,7 +21,6 @@ class SidePanel {
     void updateList(Graph& graph);
     void resize(sf::Vector2f size);
 
-    private:
     sf::Font font;
     vector<sf::Text> expressionList;
     sf::View view;
@@ -30,7 +29,7 @@ class SidePanel {
 };
 
 SidePanel::SidePanel() {
-    font.loadFromFile("../../CascadiaCode-Regular.ttf");
+    font.loadFromFile(fontPath);
 
     view.reset(sf::FloatRect(0, 0, SCREEN_WIDTH*(1-GRAPH_WIDTH_RATIO), SCREEN_HEIGHT));
     view.setViewport(sf::FloatRect(GRAPH_WIDTH_RATIO,0,1-GRAPH_WIDTH_RATIO,1));
@@ -48,10 +47,11 @@ void SidePanel::draw(sf::RenderWindow& window) {
 }
 
 void SidePanel::updateList(Graph& graph) {
+    expressionList.clear();
     for (int i=0; i<graph.expressions.size(); i++) {
         sf::Text txt("Y="+graph.expressions[i].getExpression(), font);
         txt.setFillColor(graph.expressions[i].getColor());
-        txt.move(0, 150+i*50);
+        txt.move(0, i*50);
         expressionList.push_back(txt);
     }
 }

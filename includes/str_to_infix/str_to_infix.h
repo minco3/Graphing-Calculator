@@ -13,6 +13,7 @@
 #include "../token/rightparen.h"
 
 Queue<Token*> strToInfix(string str) {
+    int lparencount=0, rparencount=0;
     const bool debug = false;
     if (debug) std::cout << str << std::endl;
     Queue<Token*> infix;
@@ -20,11 +21,11 @@ Queue<Token*> strToInfix(string str) {
         string word;
         switch (str[i]) {
             case '0' ... '9':
-                while (str[i]>='0'&&str[i]<='9'){
+                while (str[i]=='.'||str[i]>='0'&&str[i]<='9'){
                     word+=str[i++];
                 }
                 i--;
-                infix.push(new Integer(stoi(word)));
+                infix.push(new Integer(stod(word)));
                 break;
             case '+':
             case '-':
@@ -37,9 +38,11 @@ Queue<Token*> strToInfix(string str) {
                 break;
             case '(':
                 infix.push(new LeftParen);
+                lparencount++;
                 break;
             case ')':
                 infix.push(new RightParen);
+                rparencount++;
                 break;
             case 'a' ... 'z':
             case 'A' ... 'Z':     
@@ -47,14 +50,17 @@ Queue<Token*> strToInfix(string str) {
                     word+=str[i++];
                 }
                 i--;
+                if (debug) std::cout << word << std::endl;
                 infix.push(new Function(word));
                 break;
             default:
+                //return Queue<Token*>();
                 break;
         }
         if (debug) std::cout << infix; 
     }
-    return infix;
+    if (lparencount == rparencount) return infix;
+    else return Queue<Token*>();
 }
 
 #endif //STR_TO_INFIX

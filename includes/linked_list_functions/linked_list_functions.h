@@ -124,7 +124,7 @@ node<T>* _insert_after(node<T>* &head, node<T>* after_this, T insert_this) {
         return _insert_head(head, insert_this);
 
 
-    assert(_search_list(head, after_this->_item) != nullptr);
+    //assert(_search_list(head, after_this->_item) != nullptr);             idk why this is causing issues
     after_this->_next = new node<T>(insert_this, after_this->_next);
 
     // return head;

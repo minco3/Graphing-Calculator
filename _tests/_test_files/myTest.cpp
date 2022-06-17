@@ -204,7 +204,7 @@ bool expression_test(bool debug = false) {
   }
   Expression exp3("3^2");
   if (!exp3.isLinear()){
-    std::cout << "3^2" << std::endl;
+    std::cout << "3^2" << std::endl; // no solution
     return false; 
   } 
   Expression exp4("5*X");

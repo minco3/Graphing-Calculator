@@ -126,6 +126,7 @@ template <typename T>  void Queue<T>::print_pointers() {
 }
   
 template<typename TT> ostream& operator <<(ostream& outs, const Queue<TT>& printMe) {
+  if (printMe._front==nullptr) return outs;
   for (typename Queue<TT>::Iterator it = printMe.begin(); it != printMe.end(); it++) {
   outs << '[' << *it << "]-> ";
   }

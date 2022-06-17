@@ -24,12 +24,17 @@ class Graph {
     void draw(sf::RenderWindow& window);
     void resize(sf::Vector2f size);
     void zoom(float factor, sf::Vector2i mousePos);
+    void resetZoom();
     void move(sf::Vector2f deltaPos);
     void addExpression(std::string str);
+    void updateBounds();
 
-    sf::CircleShape origin;
     sf::View view;
+    sf::CircleShape origin;
     sf::RectangleShape background;
+    sf::Font font;
+    sf::Text lowerBound;
+    sf::Text upperBound;
     vector<Expression> expressions;
     vector<sf::CircleShape> dots;
     vector<sf::RectangleShape> lines;
@@ -39,6 +44,13 @@ class Graph {
 };
 
 Graph::Graph() {
+    font.loadFromFile(fontPath);
+    lowerBound.setFont(font);
+    lowerBound.setCharacterSize(15);
+    upperBound.setFont(font);
+    upperBound.setCharacterSize(15);
+
+
     view.reset(sf::FloatRect(0,0, SCREEN_WIDTH*GRAPH_WIDTH_RATIO, SCREEN_HEIGHT));
     view.setViewport(sf::FloatRect(0,0,GRAPH_WIDTH_RATIO,1));
 
@@ -56,15 +68,18 @@ Graph::Graph() {
         axis[i].setPosition(origin.getPosition());
         axis[i].setFillColor(sf::Color::Black);
     }
+
+    updateBounds();
 }
 
 void Graph::plot() {
     reset();
-    int lower_bound = (-origin.getPosition().x)/CONST_SCALE*scale, upper_bound = (view.getSize().x-origin.getPosition().x)/CONST_SCALE*scale;
+    float lower_bound = (-origin.getPosition().x)/CONST_SCALE*scale, upper_bound = (view.getSize().x-origin.getPosition().x)/CONST_SCALE*scale;
     for (int i=0; i<expressions.size(); i++) {
         if (expressions[i].isLinear()) {
+            
             float length = PlotLine(expressions[i].postfix, lower_bound, upper_bound);
-            sf::RectangleShape line(sf::Vector2f(length*CONST_SCALE/scale,4));
+            sf::RectangleShape line(sf::Vector2f(length*CONST_SCALE/scale*10,4));
             line.setOrigin(line.getSize()/2.f);
             line.setPosition(origin.getPosition().x, origin.getPosition().y-(expressions[i].getIntercept()*CONST_SCALE/scale));
             line.setRotation(-atan(expressions[i].getSlope())*180.f/M_PI);
@@ -100,36 +115,49 @@ void Graph::draw(sf::RenderWindow& window) {
         window.draw(axis[i]);
     }
     for (int i=0; i<dots.size(); i++) {
-        window.draw(dots[i]);
+        if (background.getGlobalBounds().contains(dots[i].getPosition()));
+            window.draw(dots[i]);
     }
     for (int i=0; i<lines.size(); i++) {
         window.draw(lines[i]);
     }
 
-    window.setView(window.getDefaultView());
+    window.draw(lowerBound);
+    window.draw(upperBound);
 }
 
 void Graph::resize(sf::Vector2f size) {
-        view.reset(sf::FloatRect(0,0,size.x*GRAPH_WIDTH_RATIO, size.y));
-        origin.setPosition(view.getSize()/2.f);
-        for (int i=0; i<2; i++) {
-            axis[i].setPosition(origin.getPosition());
-        }
-        background.setSize(view.getSize());
-        reset();
-        plot();
+    view.reset(sf::FloatRect(0,0,size.x*GRAPH_WIDTH_RATIO, size.y));
+    origin.setPosition(view.getSize()/2.f);
+    for (int i=0; i<2; i++) {
+        axis[i].setPosition(origin.getPosition());
+    }
+    background.setSize(view.getSize());
+    reset();
+    plot();
+    updateBounds();
 }
 
 void Graph::zoom(float factor, sf::Vector2i mousePos) {
     if (background.getGlobalBounds().contains(static_cast<sf::Vector2f>(mousePos))) {
-        if (factor<0) scale*= .9f;
-        else scale *= 1.1;
+        //sf::Vector2f distanceFromOrigin((origin.getPosition().x-(background.getSize().x/2)), origin.getPosition().y-(background.getSize().y/2));
+        sf::Vector2f distanceFromOrigin(origin.getPosition().x-mousePos.x, origin.getPosition().y-mousePos.y);
+    
+        if (factor<0) {
+            scale*= 1.1f;
+            move(distanceFromOrigin*-0.1f);
+        } 
+        else{
+            scale *= 0.9f;
+            move(distanceFromOrigin*0.1f);
+        } 
     }
     if (scale<0.075) scale = 0.075;
     if (scale>1000) scale = 1000;
     // std::cout << scale << std::endl;
     reset();
     plot();
+    updateBounds();
 }
 
 void Graph::move(sf::Vector2f deltaPos) {
@@ -143,12 +171,38 @@ void Graph::move(sf::Vector2f deltaPos) {
     for (int i=0; i<lines.size(); i++) {
         lines[i].move(deltaPos);
     }
+    updateBounds();
+}
+
+void Graph::resetZoom() {
+    origin.setPosition(view.getSize()/2.f);
+    for (int i=0; i<axis.size(); i++)
+        axis[i].setPosition(origin.getPosition());
+    scale=1;
+    reset();
+    plot();
+    updateBounds();
 }
 
 void Graph::addExpression(std::string str) {
-    expressions.emplace_back(str);
-    reset();
-    plot();
+    Queue<Token*> q = strToInfix(str);
+    if (!q.empty()) {
+        expressions.emplace_back(str);
+        reset();
+        plot();
+    }
+}
+
+void Graph::updateBounds() {
+    float lower = (-origin.getPosition().x)/CONST_SCALE*scale, upper = (view.getSize().x-origin.getPosition().x)/CONST_SCALE*scale;
+    lowerBound.setString(to_string(lower));
+    upperBound.setString(to_string(upper));
+
+    lowerBound.setOrigin(0, lowerBound.getGlobalBounds().height);
+    upperBound.setOrigin(lowerBound.getGlobalBounds().width, lowerBound.getGlobalBounds().height);
+
+    lowerBound.setPosition(0,view.getSize().y-50);
+    upperBound.setPosition(view.getSize().x, view.getSize().y-50);
 }
 
 

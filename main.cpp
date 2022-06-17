@@ -33,7 +33,7 @@ int main()
     sf::Clock clock;
 
     sf::Font font;
-    font.loadFromFile("../../CascadiaCode-Regular.ttf");   
+    font.loadFromFile(fontPath);   
     sf::Text fpsCounter("0", font);
     sf::Text dotCounter("0", font);
     sf::Text textBox("", font);
@@ -42,16 +42,19 @@ int main()
     SidePanel sidePanel;
     Graph graph;
 
-    graph.addExpression("X");
-    graph.addExpression("sin(X)");
-    graph.addExpression("X^2");
-    graph.addExpression("X^3");
-    graph.addExpression("1");
+    // graph.addExpression("X");
+    // graph.addExpression("sin(X)");
+    // graph.addExpression("X^2");
+    // graph.addExpression("X^3");
+    // graph.addExpression("1");
+    //graph.addExpression("X^(2/3)+(9/10)*(5-X^2)^(1/2)*sin(100*X)");       right 1/2 of heart
 
     sidePanel.updateList(graph);
 
     bool mouse1 = false;
     bool entering = false;
+
+    string txt;
 
     sf::Vector2f LastPos, deltaPos(0,0);
 
@@ -94,21 +97,44 @@ int main()
                 // key pressed
             case sf::Event::KeyPressed:
                 switch (event.key.code) {
+                    case 26: //0
+                        if (!entering&&event.key.control) graph.resetZoom();
+                        break;
+                    case 36: // ESC
+                        if (entering) {
+                            entering = false;
+                            txt = "";
+                            textBox.setString(txt);
+                        }
+                        break;
+                    case 55: //+
+                        if (!entering&&event.key.control) graph.zoom(1, static_cast<sf::Vector2i>(graph.background.getSize()/2.f));
+                        break;
+                    case 56: //-
+                        if (!entering&&event.key.control) graph.zoom(-1, static_cast<sf::Vector2i>(graph.background.getSize()/2.f));
+                        break;
                     case 58: // ENTER
                         if (entering) {
                             entering = false;
-                            graph.addExpression(textBox.getString());
+                            graph.addExpression(txt);
                             sidePanel.updateList(graph);
-                            textBox.setString("");
+                            txt = "";
+                            textBox.setString(txt);
                         } else {
                             entering = true;
                         }
                         break;
-                    case 36:
-                        if (entering) {
-                            entering = false;
-                            textBox.setString("");
+                    case 59: // BACKSPACE
+                        if (entering&&txt.size()>0) {
+                            txt = txt.substr(0, txt.size()-1);
+                            textBox.setString(txt);
                         }
+                        break;
+                    case 66: //DEL
+                        if (graph.expressions.size()>0)
+                            graph.expressions.pop_back();
+                            graph.plot();
+                            sidePanel.updateList(graph);
                     default:
                         break;
                 }
@@ -116,10 +142,27 @@ int main()
                 break;
             case sf::Event::MouseButtonPressed:
                 if (event.mouseButton.button == sf::Mouse::Left) {
+                    //std::cout << event.mouseButton.x << ", " << event.mouseButton.y << std::endl;
                     mouse1 = graph.background.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y);
                     LastPos = sf::Vector2f(event.mouseButton.x, event.mouseButton.y);
-                    //std::cout << event.mouseButton.x << ", " << event.mouseButton.y << std::endl;
                 }
+
+                for (int i=0; i<sidePanel.expressionList.size(); i++) {
+                    sf::FloatRect sidePanelBounds = sidePanel.expressionList[i].getGlobalBounds();
+                    sidePanelBounds.left += graph.view.getSize().x;
+                    if (sidePanelBounds.contains(sf::Vector2f(event.mouseButton.x, event.mouseButton.y))) {
+                        if (event.mouseButton.button == sf::Mouse::Left) {
+                            sf::Color color(fastrand(255),fastrand(255),fastrand(255));
+                            sidePanel.expressionList[i].setFillColor(color);
+                            graph.expressions[i].setColor(color);
+                        } else if (event.mouseButton.button == sf::Mouse::Right) {
+                            graph.expressions.erase(graph.expressions.begin()+i);
+                            sidePanel.updateList(graph);
+                        }
+                        graph.plot();
+                    }
+                }
+
                 break;
             case sf::Event::MouseButtonReleased:
                 if (event.mouseButton.button == sf::Mouse::Left) {
@@ -147,7 +190,9 @@ int main()
                 visibleArea = sf::FloatRect(0, 0, event.size.width, event.size.height);
                 window.setView(sf::View(visibleArea));
             case sf::Event::TextEntered:
-                textBox.setString(textBox.getString()+static_cast<char>(event.text.unicode));
+                if (event.text.unicode<128&&event.text.unicode!=8&&entering) {
+                    textBox.setString(txt+=static_cast<char>(event.text.unicode));
+                }
                 break;
             default:
                 break;
@@ -161,8 +206,8 @@ int main()
         if(entering) window.draw(textBox);
 
         sidePanel.draw(window);
-        window.draw(fpsCounter);
-        window.draw(dotCounter);
+        // window.draw(fpsCounter);
+        // window.draw(dotCounter);
         window.display();
 
     }

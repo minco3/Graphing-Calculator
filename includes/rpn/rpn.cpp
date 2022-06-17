@@ -10,7 +10,6 @@ double RPN::operator() (double value) { // used for running the alg
     string _operator, _function;
     double lhs, rhs;
     while(!_input.empty()) {
-        //Token* op = queue.pop();
         switch(_input.front()->TypeOf()) {
             case INTEGER:
                 _s.push(static_cast<Integer*>(_input.pop())->getValue());
@@ -26,14 +25,15 @@ double RPN::operator() (double value) { // used for running the alg
                 } else if (_operator == "*") {
                     _s.push(lhs*rhs);
                 } else if (_operator == "/") {
-                    _s.push(lhs/rhs);
+                    if (rhs!=0) // maybe throw error in future
+                        _s.push(lhs/rhs);
                 } else if (_operator == "^") {
                     _s.push(pow(lhs, rhs));
                 }
                 break;
             case FUNCTION:
                 _function = static_cast<Function*>(_input.pop())->getFunction();
-                if (_function == "X")
+                if (_function == "X" || _function == "x")
                     _s.push(value);
                 else if (_function == "sin")
                     _s.push(sin(_s.pop()));
@@ -41,6 +41,12 @@ double RPN::operator() (double value) { // used for running the alg
                     _s.push(cos(_s.pop()));
                 else if (_function == "tan")
                     _s.push(tan(_s.pop()));
+                else if (_function == "arcsin")
+                    _s.push(asin(_s.pop()));
+                else if (_function == "arccos")
+                    _s.push(acos(_s.pop()));
+                else if (_function == "arctan")
+                    _s.push(atan(_s.pop()));
                 break;
             default:
                 break;

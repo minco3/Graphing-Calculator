@@ -32,10 +32,10 @@ class Expression {
     float getIntercept() {return intercept;}
     std::string getExpression() {return infixStr;}
     sf::Color getColor() {return color;}
+    void setColor(sf::Color newColor) {color = newColor;}
 
     private:
     void setLinear();
-    //void simplify();
     vector<Point> points;
     Queue<Token*> postfix;
     bool linear;
@@ -82,47 +82,5 @@ void Expression::setLinear() {
         intercept = rpn(0);
     }
 }
-
-// void Expression::simplify() {
-//     Queue<Token*> _input(postfix);
-//     Stack<Token*> _s;
-//     string _operator, _function;
-//     Token* lhs, rhs;
-//     while(!_input.empty()) {
-//         switch(_input.front()->TypeOf()) {
-//             case INTEGER:
-//                 _s.push(_input.pop());
-//                 break;
-//             case OPERATOR:
-//                 rhs = _s.pop();
-//                 lhs = _s.pop();
-//                 _operator = (static_cast<Operator*>(_input.pop())->getOperator());
-//                 if (_operator == "+") {
-//                     _s.push(lhs + rhs);
-//                 } else if (_operator == "-") {
-//                     _s.push(lhs - rhs);
-//                 } else if (_operator == "*") {
-//                     _s.push(lhs*rhs);
-//                 } else if (_operator == "/") {
-//                     _s.push(lhs/rhs);
-//                 } else if (_operator == "^") {
-//                     _s.push(pow(lhs, rhs));
-//                 }
-//                 break;
-//             case FUNCTION:
-//                 _function = static_cast<Function*>(_input.pop())->getFunction();
-//                 if (_function == "X")
-//                     _s.push(value);
-//                 else if (_function == "sin")
-//                     _s.push(sin(_s.pop()));
-//                 else if (_function == "cos")
-//                     _s.push(cos(_s.pop()));
-//                 else if (_function == "tan")
-//                     _s.push(tan(_s.pop()));
-//                 break;
-//             default:
-//                 break;
-//         }
-// }
 
 #endif // EXPRESSION_H

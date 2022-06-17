@@ -53,7 +53,6 @@ Queue<Token*> ShuntingYard::postfix(const Queue<Token*>& input_q) {
                         if (os.top()->TypeOf()==FUNCTION)
                             output.push(os.pop());
                         else break;
-
                     os.push(input.pop());
                     break;
                 }

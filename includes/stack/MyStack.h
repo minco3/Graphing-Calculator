@@ -105,6 +105,7 @@ template <typename T> T Stack<T>::top() { if (!empty()) {return _top->_item;} el
 template <typename T> T Stack<T>::pop() { if (!empty()) {_size--; return _delete_node(_top, begin()._ptr);} else return T();}
 
 template<typename U> ostream& operator <<(ostream& outs, const Stack<U>& printMe) {
+  if (printMe._top==nullptr) return outs;
   for (typename Stack<U>::Iterator it = printMe.begin(); it != printMe.end(); it++) {
     outs << '[' << *it << "]-> ";
     }
