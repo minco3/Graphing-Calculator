@@ -32,8 +32,6 @@ SidePanel::SidePanel() {
 
     background.setSize(view.getSize());
     background.setFillColor(sidePanelColor);
-    
-    std::cout << background.getGlobalBounds().width;
 }
 
 void SidePanel::draw(sf::RenderWindow& window) {

@@ -45,6 +45,7 @@ int main()
     graph.addExpression("sin(X)");
     graph.addExpression("X^2");
     graph.addExpression("X^3");
+    graph.addExpression("1");
 
     bool mouse1 = false;
 

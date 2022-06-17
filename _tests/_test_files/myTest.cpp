@@ -17,6 +17,7 @@
 #include "../../includes/shunting_yard/shunting_yard.h"
 #include "../../includes/rpn/rpn.h"
 #include "../../includes/str_to_infix/str_to_infix.h"
+#include "../../includes/expression/expression.h"
 //------------------------------------------------------------------------------------------
 
 using namespace std;
@@ -190,6 +191,43 @@ bool trig_test(bool debug = false) {
   return true;
 }
 
+bool expression_test(bool debug = false) {
+  Expression exp("sin(X)");
+  if (exp.isLinear()) {
+    std::cout << "sin(X)" << std::endl;
+    return false;
+  }
+  Expression exp2("X^3");
+  if (exp2.isLinear()) {
+    std::cout << "X^3" << std::endl;
+    return false;
+  }
+  Expression exp3("3^2");
+  if (!exp3.isLinear()){
+    std::cout << "3^2" << std::endl;
+    return false; 
+  } 
+  Expression exp4("5*X");
+  if (exp4.isLinear()){
+
+  return true;
+  } 
+  else {
+    std::cout << "5*X" << endl;
+    return false;
+  }
+}
+
+bool rpn_constants_test(bool debug = false) {
+  Queue<Token*> postfix;
+  postfix.push(new Integer(3));
+  RPN rpn(postfix);
+  for (int i=0; i<100; i++) {
+    if (rpn(i) != 3) return false;
+  }
+  return true;
+}
+
 //Lord help me! 
 bool debug = false;
 
@@ -226,6 +264,18 @@ TEST(TEST_SHUNTING_RPN, TestLine)
 TEST(TEST_SHUNTING_RPN, TestTrig)
 {
   bool success = trig_test(debug);
+  EXPECT_EQ(success, true);
+}
+
+TEST(TEST_EXPRESSION_CLASS, TestExpression)
+{
+  bool success = expression_test(debug);
+  EXPECT_EQ(success, true);
+}
+
+TEST(TEST_RPN, TestRpnConstants)
+{
+  bool success = rpn_constants_test(debug);
   EXPECT_EQ(success, true);
 }
 

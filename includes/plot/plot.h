@@ -1,12 +1,13 @@
 #ifndef PLOT_H
 #define PLOT_H
 
+#include <cmath>
+
 #include "../point/point.h"
 
 #include "../shunting_yard/shunting_yard.h"
 #include "../rpn/rpn.h"
 
-#include "../queue/MyQueue.h"
 #include "../queue/MyQueue.h"
 #include "../stack/MyStack.h"
 #include "../token/token.h"
@@ -24,6 +25,12 @@ Queue<Point> PlotExpression(Queue<Token*> expression, double low, double high, d
         points.push(Point(i,y));
     }
     return points;
+}
+
+float PlotLine(Queue<Token*> expression, double low, double high) {
+    RPN rpn(expression);
+    float y1 = rpn(low), y2 = rpn(high);
+    return sqrt(pow((high-low),2)+pow((y2-y1),2));
 }
 
 #endif // PLOT_H

@@ -5,8 +5,7 @@ RPN::RPN(const Queue<Token*>& input_q) {
 }
 
 double RPN::operator() (double value) { // used for running the alg
-    double answer;
-    Queue<Token*> _o, _input(queue);
+    Queue<Token*> _input(queue);
     Stack<double> _s;
     string _operator, _function;
     double lhs, rhs;
@@ -14,7 +13,7 @@ double RPN::operator() (double value) { // used for running the alg
         //Token* op = queue.pop();
         switch(_input.front()->TypeOf()) {
             case INTEGER:
-                _s.push(static_cast<Integer*>(_input.pop())->getValue()); // feels like theres a better way
+                _s.push(static_cast<Integer*>(_input.pop())->getValue());
                 break;
             case OPERATOR:
                 rhs = _s.pop();
