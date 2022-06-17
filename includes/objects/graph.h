@@ -65,8 +65,9 @@ void Graph::plot() {
             sf::RectangleShape line(sf::Vector2f(length*CONST_SCALE/scale,4));
             line.setOrigin(line.getSize()/2.f);
             line.setPosition(origin.getPosition().x, origin.getPosition().y-(expressions[i].getIntercept()*CONST_SCALE/scale));
-            line.setRotation(tan(expressions[i].getSlope()));
+            line.setRotation((atan(expressions[i].getSlope())*180.f/M_PI)+90.f);
             lines.push_back(line);
+            //std::cout << "length : " << length << "slope: " << expressions[i].getSlope() << "rotation :" << atan(expressions[i].getSlope())*180.f/M_PI << "intercept :" << expressions[i].getIntercept() << std::endl; 
         } else {
             Queue<Point> points = PlotExpression(expressions[i].postfix, lower_bound, upper_bound, (upper_bound-lower_bound)/res);
 

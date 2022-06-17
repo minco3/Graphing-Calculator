@@ -61,8 +61,8 @@ void Expression::setLinear() {
                 linear = false;
                 break;
             case FUNCTION:
-                if (static_cast<Function*>(expression.pop())->getFunction()!="X");
-                linear = false;
+                if (static_cast<Function*>(expression.pop())->getFunction()!="X")
+                    linear = false;
                 break;
             default:
                 expression.pop();
