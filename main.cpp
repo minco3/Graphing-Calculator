@@ -36,6 +36,7 @@ int main()
     font.loadFromFile("../../CascadiaCode-Regular.ttf");   
     sf::Text fpsCounter("0", font);
     sf::Text dotCounter("0", font);
+    sf::Text textBox("", font);
     dotCounter.move(sf::Vector2f(0,60));
 
     SidePanel sidePanel;
@@ -47,7 +48,10 @@ int main()
     graph.addExpression("X^3");
     graph.addExpression("1");
 
+    sidePanel.updateList(graph);
+
     bool mouse1 = false;
+    bool entering = false;
 
     sf::Vector2f LastPos, deltaPos(0,0);
 
@@ -82,11 +86,33 @@ int main()
                     deltaPos = sf::Vector2f(event.mouseMove.x-LastPos.x, event.mouseMove.y-LastPos.y);
                     graph.move(deltaPos);
                     LastPos = sf::Vector2f(event.mouseMove.x, event.mouseMove.y);
-                } else mouse1 = false;
+                } else if (mouse1) {
+                    mouse1 = false;
+                    graph.plot();
+                }
                 break;
                 // key pressed
             case sf::Event::KeyPressed:
-                //cout << "key " << event.key.code << " was pressed..."<<endl;
+                switch (event.key.code) {
+                    case 58: // ENTER
+                        if (entering) {
+                            entering = false;
+                            graph.addExpression(textBox.getString());
+                            sidePanel.updateList(graph);
+                            textBox.setString("");
+                        } else {
+                            entering = true;
+                        }
+                        break;
+                    case 36:
+                        if (entering) {
+                            entering = false;
+                            textBox.setString("");
+                        }
+                    default:
+                        break;
+                }
+                cout << "key " << event.key.code << " was pressed..."<<endl;
                 break;
             case sf::Event::MouseButtonPressed:
                 if (event.mouseButton.button == sf::Mouse::Left) {
@@ -97,8 +123,11 @@ int main()
                 break;
             case sf::Event::MouseButtonReleased:
                 if (event.mouseButton.button == sf::Mouse::Left) {
-                    mouse1 = false;
-                    deltaPos = sf::Vector2f(0,0);
+                    if (mouse1) {
+                        graph.plot();
+                        mouse1 = false;
+                        deltaPos = sf::Vector2f(0,0);
+                    }
                     //std::cout << event.mouseButton.x << ", " << event.mouseButton.y << std::endl;
                 }
                 break;
@@ -117,15 +146,20 @@ int main()
                 // update the view to the new size of the window
                 visibleArea = sf::FloatRect(0, 0, event.size.width, event.size.height);
                 window.setView(sf::View(visibleArea));
+            case sf::Event::TextEntered:
+                textBox.setString(textBox.getString()+static_cast<char>(event.text.unicode));
+                break;
             default:
                 break;
             }
         }
 
-
         // you HAVE TO clear your window on every iteration of this while.
         window.clear();
+
         graph.draw(window);
+        if(entering) window.draw(textBox);
+
         sidePanel.draw(window);
         window.draw(fpsCounter);
         window.draw(dotCounter);

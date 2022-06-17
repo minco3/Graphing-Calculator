@@ -9,6 +9,7 @@
 #include "../shunting_yard/shunting_yard.h"
 #include "../rpn/rpn.h"
 
+#include "../random/random.h"
 
 #include "../queue/MyQueue.h"
 #include "../stack/MyStack.h"
@@ -29,6 +30,8 @@ class Expression {
     bool isLinear() {return linear;}
     float getSlope() {return slope;}
     float getIntercept() {return intercept;}
+    std::string getExpression() {return infixStr;}
+    sf::Color getColor() {return color;}
 
     private:
     void setLinear();
@@ -38,13 +41,17 @@ class Expression {
     bool linear;
     float slope;
     float intercept;
+    std::string infixStr;
+    sf::Color color;
 };
 
 Expression::Expression(std::string str) {
+    color = sf::Color(fastrand(255), fastrand(255), fastrand(255));
     setExpression(str);
 }
 
 void Expression::setExpression(std::string str) {
+    infixStr = str;
     Queue<Token*> infix = strToInfix(str);
     ShuntingYard sy(infix);
     postfix = sy.postfix();

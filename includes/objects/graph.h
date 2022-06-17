@@ -54,10 +54,12 @@ Graph::Graph() {
     for (int i=0; i<axis.size(); i++) {
         axis[i].setOrigin(axis[i].getSize()/2.f);
         axis[i].setPosition(origin.getPosition());
+        axis[i].setFillColor(sf::Color::Black);
     }
 }
 
 void Graph::plot() {
+    reset();
     int lower_bound = (-origin.getPosition().x)/CONST_SCALE*scale, upper_bound = (view.getSize().x-origin.getPosition().x)/CONST_SCALE*scale;
     for (int i=0; i<expressions.size(); i++) {
         if (expressions[i].isLinear()) {
@@ -65,7 +67,8 @@ void Graph::plot() {
             sf::RectangleShape line(sf::Vector2f(length*CONST_SCALE/scale,4));
             line.setOrigin(line.getSize()/2.f);
             line.setPosition(origin.getPosition().x, origin.getPosition().y-(expressions[i].getIntercept()*CONST_SCALE/scale));
-            line.setRotation((atan(expressions[i].getSlope())*180.f/M_PI)+90.f);
+            line.setRotation(-atan(expressions[i].getSlope())*180.f/M_PI);
+            line.setFillColor(expressions[i].color);
             lines.push_back(line);
             //std::cout << "length : " << length << "slope: " << expressions[i].getSlope() << "rotation :" << atan(expressions[i].getSlope())*180.f/M_PI << "intercept :" << expressions[i].getIntercept() << std::endl; 
         } else {
@@ -76,6 +79,7 @@ void Graph::plot() {
             for (Queue<Point>::Iterator it = points.begin(); it!=points.end(); it++) {
                 sf::CircleShape circle(2);
                 circle.setPosition(sf::Vector2f(origin.getPosition().x+it->getVector().x*CONST_SCALE/scale, origin.getPosition().y-it->getVector().y*CONST_SCALE/scale));
+                circle.setFillColor(expressions[i].color);
                 dots.push_back(circle);
             }
         }
@@ -118,8 +122,8 @@ void Graph::resize(sf::Vector2f size) {
 
 void Graph::zoom(float factor, sf::Vector2i mousePos) {
     if (background.getGlobalBounds().contains(static_cast<sf::Vector2f>(mousePos))) {
-        if (factor<0) scale/= (-factor)/3;
-        else scale *= (factor+1)/5;
+        if (factor<0) scale*= .9f;
+        else scale *= 1.1;
     }
     if (scale<0.075) scale = 0.075;
     if (scale>1000) scale = 1000;
@@ -139,12 +143,11 @@ void Graph::move(sf::Vector2f deltaPos) {
     for (int i=0; i<lines.size(); i++) {
         lines[i].move(deltaPos);
     }
-    reset();
-    plot();
 }
 
 void Graph::addExpression(std::string str) {
     expressions.emplace_back(str);
+    reset();
     plot();
 }
 
