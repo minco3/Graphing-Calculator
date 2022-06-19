@@ -17,7 +17,7 @@
 class Graph {
 
     public:
-    Graph();
+    Graph(sf::Font& newFont);
 
     void plot();
     void reset();
@@ -43,8 +43,10 @@ class Graph {
 
 };
 
-Graph::Graph() {
-    font.loadFromFile(fontPath);
+Graph::Graph(sf::Font& newFont) {
+
+    font = newFont;
+
     lowerBound.setFont(font);
     lowerBound.setCharacterSize(15);
     upperBound.setFont(font);

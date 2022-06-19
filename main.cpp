@@ -39,20 +39,21 @@ int main()
     sf::Text textBox("", font);
     dotCounter.move(sf::Vector2f(0,60));
 
-    SidePanel sidePanel;
-    Graph graph;
+    SidePanel sidePanel(font);
+    Graph graph(font);
 
     // graph.addExpression("X");
     // graph.addExpression("sin(X)");
     // graph.addExpression("X^2");
     // graph.addExpression("X^3");
     // graph.addExpression("1");
-    //graph.addExpression("X^(2/3)+(9/10)*(5-X^2)^(1/2)*sin(100*X)");       right 1/2 of heart
+    // graph.addExpression("X^(2/3)+(9/10)*(5-X^2)^(1/2)*sin(100*X)");       right 1/2 of heart
 
     sidePanel.updateList(graph);
 
     bool mouse1 = false;
     bool entering = false;
+    bool debug = false;
 
     string txt;
 
@@ -93,6 +94,15 @@ int main()
                     mouse1 = false;
                     graph.plot();
                 }
+
+                // for (int i=0; i<sidePanel.expressionList.size(); i++) {
+                //     sf::FloatRect textBounds = sidePanel.expressionList[i].getGlobalBounds();
+                //     textBounds.left += graph.view.getSize().x;
+                //     if (textBounds.contains(sf::Vector2f(event.mouseMove.x, event.mouseMove.y))) {
+                //         sidePanel.expressionList[i].hovering = true;
+                //     }
+                //     else sidePanel.expressionList[i].hovering = false;
+                // }
                 break;
                 // key pressed
             case sf::Event::KeyPressed:
@@ -135,6 +145,9 @@ int main()
                             graph.expressions.pop_back();
                             graph.plot();
                             sidePanel.updateList(graph);
+                            break;
+                    case 87:
+                        debug = !debug;
                     default:
                         break;
                 }
@@ -151,11 +164,11 @@ int main()
                     sf::FloatRect sidePanelBounds = sidePanel.expressionList[i].getGlobalBounds();
                     sidePanelBounds.left += graph.view.getSize().x;
                     if (sidePanelBounds.contains(sf::Vector2f(event.mouseButton.x, event.mouseButton.y))) {
-                        if (event.mouseButton.button == sf::Mouse::Left) {
+                        if (event.mouseButton.button == sf::Mouse::Left) { // random color
                             sf::Color color(fastrand(255),fastrand(255),fastrand(255));
-                            sidePanel.expressionList[i].setFillColor(color);
+                            sidePanel.expressionList[i].setColor(color);
                             graph.expressions[i].setColor(color);
-                        } else if (event.mouseButton.button == sf::Mouse::Right) {
+                        } else if (event.mouseButton.button == sf::Mouse::Right) { // remove expression
                             graph.expressions.erase(graph.expressions.begin()+i);
                             sidePanel.updateList(graph);
                         }
@@ -204,10 +217,11 @@ int main()
 
         graph.draw(window);
         if(entering) window.draw(textBox);
-
         sidePanel.draw(window);
-        // window.draw(fpsCounter);
-        // window.draw(dotCounter);
+        if (debug) {
+            window.draw(fpsCounter);
+            window.draw(dotCounter);
+        }
         window.display();
 
     }

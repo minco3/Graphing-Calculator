@@ -6,6 +6,8 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 
+
+#include "../objects/hoverableText.h"
 #include "../constants/windowConstants.h"
 #include "../point/point.h"
 #include "../random/random.h"
@@ -15,21 +17,21 @@ class SidePanel {
 
 
     public:
-    SidePanel();
+    SidePanel(sf::Font& newFont);
 
     void draw(sf::RenderWindow& window);
     void updateList(Graph& graph);
     void resize(sf::Vector2f size);
 
     sf::Font font;
-    vector<sf::Text> expressionList;
+    vector<hoverableText> expressionList;
     sf::View view;
     sf::RectangleShape background;
 
 };
 
-SidePanel::SidePanel() {
-    font.loadFromFile(fontPath);
+SidePanel::SidePanel(sf::Font& newFont) {
+    font = newFont;
 
     view.reset(sf::FloatRect(0, 0, SCREEN_WIDTH*(1-GRAPH_WIDTH_RATIO), SCREEN_HEIGHT));
     view.setViewport(sf::FloatRect(GRAPH_WIDTH_RATIO,0,1-GRAPH_WIDTH_RATIO,1));
@@ -42,17 +44,14 @@ void SidePanel::draw(sf::RenderWindow& window) {
     window.setView(view);
     window.draw(background);
     for (int i=0; i<expressionList.size(); i++) {
-        window.draw(expressionList[i]);
+        expressionList[i].draw(window);
     }
 }
 
 void SidePanel::updateList(Graph& graph) {
     expressionList.clear();
     for (int i=0; i<graph.expressions.size(); i++) {
-        sf::Text txt("Y="+graph.expressions[i].getExpression(), font);
-        txt.setFillColor(graph.expressions[i].getColor());
-        txt.move(0, i*50);
-        expressionList.push_back(txt);
+        expressionList.emplace_back(font, "Y="+graph.expressions[i].getExpression(), graph.expressions[i].getColor(), sf::Vector2f(10, i*50+10));
     }
 }
 
