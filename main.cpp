@@ -30,6 +30,8 @@ int main()
     window.setVerticalSyncEnabled(true);
     //Application runs at the same freq as monitor
 
+    sf::Cursor cursor;
+
     sf::Clock clock;
 
     sf::Font font;
@@ -39,8 +41,13 @@ int main()
     sf::Text textBox("", font);
     dotCounter.move(sf::Vector2f(0,60));
 
+    sf::RectangleShape verticalBar(sf::Vector2f(VERTICAL_BAR_WIDTH ,SCREEN_HEIGHT));
+    verticalBar.setFillColor(sf::Color(50,50,50));
+    verticalBar.setPosition(SCREEN_WIDTH*GRAPH_WIDTH_RATIO-VERTICAL_BAR_WIDTH/2, 0);
+
     SidePanel sidePanel(font);
     Graph graph(font);
+    graph.sidePanel = &sidePanel;
 
     // graph.addExpression("X");
     // graph.addExpression("sin(X)");
@@ -49,11 +56,12 @@ int main()
     // graph.addExpression("1");
     // graph.addExpression("X^(2/3)+(9/10)*(5-X^2)^(1/2)*sin(100*X)");       right 1/2 of heart
 
-    sidePanel.updateList(graph);
-
-    bool mouse1 = false;
+    bool movingGraph = false;
+    bool changingRatio = false;
     bool entering = false;
     bool debug = false;
+    
+    float width_ratio = GRAPH_WIDTH_RATIO;
 
     string txt;
 
@@ -86,23 +94,35 @@ int main()
                 break;
 
             case sf::Event::MouseMoved:
-                if (mouse1&&graph.background.getGlobalBounds().contains(event.mouseMove.x, event.mouseMove.y)) {
+                if (changingRatio||event.mouseMove.x>graph.background.getSize().x-4&&event.mouseMove.x<graph.background.getSize().x+4) {
+                    if (cursor.loadFromSystem(sf::Cursor::SizeHorizontal))
+                        window.setMouseCursor(cursor);
+                } else if (!changingRatio) {
+                    if (cursor.loadFromSystem(sf::Cursor::Arrow))
+                        window.setMouseCursor(cursor);
+                }
+                    
+                if (changingRatio) {
+                    verticalBar.setPosition(sf::Vector2f(event.mouseMove.x, 0));
+                }
+
+                if (movingGraph&&graph.background.getGlobalBounds().contains(event.mouseMove.x-4, event.mouseMove.y)) {
                     deltaPos = sf::Vector2f(event.mouseMove.x-LastPos.x, event.mouseMove.y-LastPos.y);
                     graph.move(deltaPos);
                     LastPos = sf::Vector2f(event.mouseMove.x, event.mouseMove.y);
-                } else if (mouse1) {
-                    mouse1 = false;
+                } else if (movingGraph) {
+                    movingGraph = false;
                     graph.plot();
                 }
 
-                // for (int i=0; i<sidePanel.expressionList.size(); i++) {
-                //     sf::FloatRect textBounds = sidePanel.expressionList[i].getGlobalBounds();
-                //     textBounds.left += graph.view.getSize().x;
-                //     if (textBounds.contains(sf::Vector2f(event.mouseMove.x, event.mouseMove.y))) {
-                //         sidePanel.expressionList[i].hovering = true;
-                //     }
-                //     else sidePanel.expressionList[i].hovering = false;
-                // }
+                for (int i=0; i<sidePanel.expressionList.size(); i++) {
+                    sf::FloatRect textBounds = sidePanel.expressionList[i].getGlobalBounds();
+                    textBounds.left += graph.view.getSize().x;
+                    if (textBounds.contains(sf::Vector2f(event.mouseMove.x, event.mouseMove.y))) {
+                        sidePanel.expressionList[i].hovering = true;
+                    }
+                    else sidePanel.expressionList[i].hovering = false;
+                }
                 break;
                 // key pressed
             case sf::Event::KeyPressed:
@@ -127,7 +147,6 @@ int main()
                         if (entering) {
                             entering = false;
                             graph.addExpression(txt);
-                            sidePanel.updateList(graph);
                             txt = "";
                             textBox.setString(txt);
                         } else {
@@ -143,10 +162,10 @@ int main()
                     case 66: //DEL
                         if (graph.expressions.size()>0)
                             graph.expressions.pop_back();
+                            sidePanel.expressionList.pop_back();
                             graph.plot();
-                            sidePanel.updateList(graph);
                             break;
-                    case 87:
+                    case 87: //F3
                         debug = !debug;
                     default:
                         break;
@@ -154,9 +173,13 @@ int main()
                 cout << "key " << event.key.code << " was pressed..."<<endl;
                 break;
             case sf::Event::MouseButtonPressed:
-                if (event.mouseButton.button == sf::Mouse::Left) {
+                if (event.mouseButton.button == sf::Mouse::Left) { // MOUSE 1 PRESSED
                     //std::cout << event.mouseButton.x << ", " << event.mouseButton.y << std::endl;
-                    mouse1 = graph.background.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y);
+                    sf::FloatRect verticalBarBounds = verticalBar.getGlobalBounds();
+                    verticalBarBounds.left -=4;
+                    verticalBarBounds.width +=6;
+                    changingRatio = verticalBarBounds.contains(event.mouseButton.x, event.mouseButton.y);
+                    movingGraph = !changingRatio&&graph.background.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y);
                     LastPos = sf::Vector2f(event.mouseButton.x, event.mouseButton.y);
                 }
 
@@ -170,7 +193,7 @@ int main()
                             graph.expressions[i].setColor(color);
                         } else if (event.mouseButton.button == sf::Mouse::Right) { // remove expression
                             graph.expressions.erase(graph.expressions.begin()+i);
-                            sidePanel.updateList(graph);
+                            sidePanel.expressionList.erase(sidePanel.expressionList.begin()+i);
                         }
                         graph.plot();
                     }
@@ -178,10 +201,18 @@ int main()
 
                 break;
             case sf::Event::MouseButtonReleased:
-                if (event.mouseButton.button == sf::Mouse::Left) {
-                    if (mouse1) {
+                if (event.mouseButton.button == sf::Mouse::Left) { // MOUSE 1 RELEASED
+                    if (changingRatio) {
+                        width_ratio /= graph.view.getSize().x/verticalBar.getPosition().x;
+                        graph.view.setViewport(sf::FloatRect(0,0,width_ratio,1));
+                        graph.resize(window.getDefaultView().getSize());
+                        sidePanel.view.setViewport(sf::FloatRect(width_ratio,0,1-width_ratio,1));
+                        sidePanel.resize(window.getDefaultView().getSize());
+                        changingRatio = false;
+                    }
+                    if (movingGraph) {
                         graph.plot();
-                        mouse1 = false;
+                        movingGraph = false;
                         deltaPos = sf::Vector2f(0,0);
                     }
                     //std::cout << event.mouseButton.x << ", " << event.mouseButton.y << std::endl;
@@ -199,6 +230,8 @@ int main()
             case sf::Event::Resized:
                 graph.resize(sf::Vector2f(event.size.width, event.size.height));
                 sidePanel.resize(sf::Vector2f(event.size.width, event.size.height));
+                verticalBar.setSize(sf::Vector2f(VERTICAL_BAR_WIDTH, event.size.height));
+
                 // update the view to the new size of the window
                 visibleArea = sf::FloatRect(0, 0, event.size.width, event.size.height);
                 window.setView(sf::View(visibleArea));
@@ -214,14 +247,15 @@ int main()
 
         // you HAVE TO clear your window on every iteration of this while.
         window.clear();
-
         graph.draw(window);
         if(entering) window.draw(textBox);
-        sidePanel.draw(window);
         if (debug) {
             window.draw(fpsCounter);
             window.draw(dotCounter);
         }
+        sidePanel.draw(window);
+        window.setView(window.getDefaultView());
+        if (true) window.draw(verticalBar);
         window.display();
 
     }

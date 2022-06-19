@@ -6,6 +6,8 @@
 
 #include "../constants/windowConstants.h"
 
+const int alphaChange = 4; // amount highlight will darken by each frame; 
+
 class hoverableText {
 
     public:
@@ -19,7 +21,7 @@ class hoverableText {
     void setColor(sf::Color color) {text.setFillColor(color);}
     sf::Color getColor() {return text.getFillColor();}
 
-    sf::FloatRect getGlobalBounds() {return text.getGlobalBounds();}
+    sf::FloatRect getGlobalBounds() {return highlight.getGlobalBounds();}
 
     void draw(sf::RenderWindow& window);
 
@@ -27,19 +29,20 @@ class hoverableText {
 
     private:
     sf::Text text;
-    sf::Font font;
     sf::RectangleShape highlight;
 
 
 };
 
-hoverableText::hoverableText(sf::Font& newFont, sf::String str, sf::Color color, sf::Vector2f pos) {
-    font = newFont;
+hoverableText::hoverableText(sf::Font& font, sf::String str, sf::Color color, sf::Vector2f pos) {
     text.setPosition(pos);
     text.setString(str);
     text.setFillColor(color);
     text.setFont(font);
-    hovering=true;
+    highlight.setPosition(sf::Vector2f(text.getGlobalBounds().left-5, text.getGlobalBounds().top-5));
+    highlight.setSize(sf::Vector2f(text.getGlobalBounds().width+15, text.getGlobalBounds().height+10));
+    highlight.setFillColor(sf::Color(0,0,0,0));
+    hovering=false;
     std::cout << static_cast<std::string>(text.getString()) << " " << text.getPosition().x << ", " << text.getPosition().y << std::endl;
 }
 
@@ -47,7 +50,7 @@ void hoverableText::draw(sf::RenderWindow& window) {
     if (hovering) {
         highlight.setPosition(sf::Vector2f(text.getGlobalBounds().left-5, text.getGlobalBounds().top-5));
         highlight.setSize(sf::Vector2f(text.getGlobalBounds().width+15, text.getGlobalBounds().height+10));
-        sf::Color highlightColor = sf::Color(50,50,50,highlight.getFillColor().a<100 ? highlight.getFillColor().a+3 : highlight.getFillColor().a);
+        sf::Color highlightColor = sf::Color(50,50,50,highlight.getFillColor().a<100 ? highlight.getFillColor().a+alphaChange : highlight.getFillColor().a);
         highlight.setFillColor(highlightColor);
         window.draw(highlight);
     } else {
@@ -58,14 +61,12 @@ void hoverableText::draw(sf::RenderWindow& window) {
 
 
 hoverableText::hoverableText(const hoverableText& other) {
-    font = other.font;
     text = other.text;
     highlight = other.highlight;
     hovering = other.hovering;
 }
 
 hoverableText& hoverableText::operator=(const hoverableText& RHS) {
-    font = RHS.font;
     text = RHS.text;
     highlight = RHS.highlight;
     hovering = RHS.hovering;

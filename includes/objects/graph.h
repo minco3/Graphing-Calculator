@@ -13,6 +13,7 @@
 #include "../point/point.h"
 #include "../random/random.h"
 #include "../queue/MyQueue.h"
+#include "../objects/SidePanel.h"
 
 class Graph {
 
@@ -28,6 +29,8 @@ class Graph {
     void move(sf::Vector2f deltaPos);
     void addExpression(std::string str);
     void updateBounds();
+
+    SidePanel* sidePanel;
 
     sf::View view;
     sf::CircleShape origin;
@@ -129,7 +132,7 @@ void Graph::draw(sf::RenderWindow& window) {
 }
 
 void Graph::resize(sf::Vector2f size) {
-    view.reset(sf::FloatRect(0,0,size.x*GRAPH_WIDTH_RATIO, size.y));
+    view.reset(sf::FloatRect(0,0,size.x*view.getViewport().width, size.y));
     origin.setPosition(view.getSize()/2.f);
     for (int i=0; i<2; i++) {
         axis[i].setPosition(origin.getPosition());
@@ -190,6 +193,7 @@ void Graph::addExpression(std::string str) {
     Queue<Token*> q = strToInfix(str);
     if (!q.empty()) {
         expressions.emplace_back(str);
+        sidePanel->addExpression(expressions.back());
         reset();
         plot();
     }

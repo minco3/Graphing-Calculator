@@ -1,6 +1,7 @@
 #ifndef SIDE_PANEL_H
 #define SIDE_PANEL_H
 
+#include <cassert>
 #include <sstream>
 #include <Vector>
 #include <SFML/Graphics.hpp>
@@ -12,6 +13,7 @@
 #include "../point/point.h"
 #include "../random/random.h"
 #include "../queue/MyQueue.h"
+#include "../objects/graph.h"
 
 class SidePanel {
 
@@ -20,7 +22,7 @@ class SidePanel {
     SidePanel(sf::Font& newFont);
 
     void draw(sf::RenderWindow& window);
-    void updateList(Graph& graph);
+    void addExpression(Expression exp);
     void resize(sf::Vector2f size);
 
     sf::Font font;
@@ -48,15 +50,12 @@ void SidePanel::draw(sf::RenderWindow& window) {
     }
 }
 
-void SidePanel::updateList(Graph& graph) {
-    expressionList.clear();
-    for (int i=0; i<graph.expressions.size(); i++) {
-        expressionList.emplace_back(font, "Y="+graph.expressions[i].getExpression(), graph.expressions[i].getColor(), sf::Vector2f(10, i*50+10));
-    }
+void SidePanel::addExpression(Expression exp) {
+    expressionList.emplace_back(font, "Y="+exp.getExpression(), exp.getColor(), sf::Vector2f(10, expressionList.size()*50+10));
 }
 
 void SidePanel::resize(sf::Vector2f size) {
-    view.reset(sf::FloatRect(0,0,size.x*(1-GRAPH_WIDTH_RATIO), size.y));
+    view.reset(sf::FloatRect(0,0,size.x*view.getViewport().width, size.y));
     background.setSize(view.getSize());
 }
 
