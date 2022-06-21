@@ -178,9 +178,10 @@ int main()
                     sf::FloatRect verticalBarBounds = verticalBar.getGlobalBounds();
                     verticalBarBounds.left -=4;
                     verticalBarBounds.width +=6;
+                    //std::cout << verticalBarBounds.left << ", " << verticalBarBounds.top << " in " <<  event.mouseButton.x << ", " << event.mouseButton.y << std::endl;
                     changingRatio = verticalBarBounds.contains(event.mouseButton.x, event.mouseButton.y);
                     movingGraph = !changingRatio&&graph.background.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y);
-                    LastPos = sf::Vector2f(event.mouseButton.x, event.mouseButton.y);
+                    if (movingGraph) LastPos = sf::Vector2f(event.mouseButton.x, event.mouseButton.y);
                 }
 
                 for (int i=0; i<sidePanel.expressionList.size(); i++) {
@@ -231,6 +232,7 @@ int main()
                 graph.resize(sf::Vector2f(event.size.width, event.size.height));
                 sidePanel.resize(sf::Vector2f(event.size.width, event.size.height));
                 verticalBar.setSize(sf::Vector2f(VERTICAL_BAR_WIDTH, event.size.height));
+                // verticalBar.setPosition(sf::Vector2f(event.size.width*width_ratio, 0));
 
                 // update the view to the new size of the window
                 visibleArea = sf::FloatRect(0, 0, event.size.width, event.size.height);
@@ -255,7 +257,7 @@ int main()
         }
         sidePanel.draw(window);
         window.setView(window.getDefaultView());
-        if (true) window.draw(verticalBar);
+        window.draw(verticalBar);
         window.display();
 
     }
