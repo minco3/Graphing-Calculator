@@ -21,6 +21,8 @@ class hoverableText {
     void setColor(sf::Color color) {text.setFillColor(color);}
     sf::Color getColor() {return text.getFillColor();}
 
+    void move(float x, float y) {text.move(x,y); highlight.move(x,y);};
+
     sf::FloatRect getGlobalBounds() {return highlight.getGlobalBounds();}
 
     void draw(sf::RenderWindow& window);

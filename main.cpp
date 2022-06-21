@@ -195,6 +195,9 @@ int main()
                         } else if (event.mouseButton.button == sf::Mouse::Right) { // remove expression
                             graph.expressions.erase(graph.expressions.begin()+i);
                             sidePanel.expressionList.erase(sidePanel.expressionList.begin()+i);
+                            for (int j=i; j<sidePanel.expressionList.size(); j++) {
+                                sidePanel.expressionList[j].move(0,-50);
+                            }
                         }
                         graph.plot();
                     }
