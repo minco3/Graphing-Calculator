@@ -29,6 +29,7 @@ class Graph {
     void move(sf::Vector2f deltaPos);
     void addExpression(std::string str);
     void updateBounds();
+    void updateGraphLines();
 
     SidePanel* sidePanel;
 
@@ -42,6 +43,9 @@ class Graph {
     vector<sf::CircleShape> dots;
     vector<sf::RectangleShape> lines;
     vector<sf::RectangleShape> axis;
+    vector<sf::RectangleShape> graphLinesX;
+    vector<sf::RectangleShape> graphLinesY;
+     
     float scale = 1;
 
 };
@@ -74,7 +78,22 @@ Graph::Graph(sf::Font& newFont) {
         axis[i].setFillColor(sf::Color::Black);
     }
 
+    for (int i=0; i<GRAPH_LINE_COUNT; i++) { // X AXIS
+        sf::RectangleShape line(sf::Vector2f(1, SCREEN_HEIGHT));
+        line.setOrigin(line.getSize().x/2, 0);
+        line.setFillColor(graphLineColor);
+        graphLinesX.push_back(line);
+    }
+
+    for (int i=0; i<GRAPH_LINE_COUNT; i++) { // Y AXIS
+        sf::RectangleShape line(sf::Vector2f(SCREEN_WIDTH, 1));
+        line.setOrigin(0, line.getSize().y/2);
+        line.setFillColor(graphLineColor);
+        graphLinesY.push_back(line);
+    }
+
     updateBounds();
+    updateGraphLines();
 }
 
 void Graph::plot() {
@@ -115,7 +134,13 @@ void Graph::reset() {
 void Graph::draw(sf::RenderWindow& window) {
     window.setView(view);
     window.draw(background);
-    //window.draw(origin);
+
+    for (int i=0; i<graphLinesX.size(); i++) {
+        window.draw(graphLinesX[i]);
+    }
+    for (int i=0; i<graphLinesY.size(); i++) {
+        window.draw(graphLinesY[i]);
+    }
     for (int i=0; i<axis.size(); i++) {
         window.draw(axis[i]);
     }
@@ -141,6 +166,7 @@ void Graph::resize(sf::Vector2f size) {
     reset();
     plot();
     updateBounds();
+    
 }
 
 void Graph::zoom(float factor, sf::Vector2i mousePos) {
@@ -167,8 +193,14 @@ void Graph::zoom(float factor, sf::Vector2i mousePos) {
 
 void Graph::move(sf::Vector2f deltaPos) {
     origin.move(deltaPos);
-        for (int i=0; i<axis.size(); i++) {
+    for (int i=0; i<axis.size(); i++) {
         axis[i].move(deltaPos);
+    }
+    for (int i=0; i<graphLinesX.size(); i++) {
+        graphLinesX[i].move(deltaPos);
+    }
+    for (int i=0; i<graphLinesY.size(); i++) {
+        graphLinesY[i].move(deltaPos);
     }
     for (int i=0; i<dots.size(); i++) {
         dots[i].move(deltaPos);
@@ -201,6 +233,7 @@ void Graph::addExpression(std::string str) {
 
 void Graph::updateBounds() {
     float lower = (-origin.getPosition().x)/CONST_SCALE*scale, upper = (view.getSize().x-origin.getPosition().x)/CONST_SCALE*scale;
+
     lowerBound.setString(to_string(lower));
     upperBound.setString(to_string(upper));
 
@@ -209,6 +242,24 @@ void Graph::updateBounds() {
 
     lowerBound.setPosition(0,view.getSize().y-50);
     upperBound.setPosition(view.getSize().x, view.getSize().y-50);
+}
+
+void Graph::updateGraphLines() {
+    float lower = (-origin.getPosition().x)/CONST_SCALE*scale, upper = (view.getSize().x-origin.getPosition().x)/CONST_SCALE*scale;
+    float lowerY = (-origin.getPosition().y)/CONST_SCALE*scale, upperY = (view.getSize().y-origin.getPosition().y)/CONST_SCALE*scale;
+
+    int graphLineGapX = (upper-lower)/GRAPH_LINE_COUNT;
+
+    for (int i=0; i<GRAPH_LINE_COUNT; i++) { //X AXIS
+        graphLinesX[i].setPosition(lower+i*graphLineGapX*CONST_SCALE/scale, 0);
+    }
+
+    int graphLineGapY = (upperY-lowerY)/GRAPH_LINE_COUNT;
+
+    for (int i=0; i<GRAPH_LINE_COUNT; i++) { // Y AXIS
+        graphLinesY[i].setPosition(0, lowerY*i*CONST_SCALE/scale);
+    }
+
 }
 
 

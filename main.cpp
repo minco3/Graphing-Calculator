@@ -38,8 +38,12 @@ int main()
     font.loadFromFile(fontPath);   
     sf::Text fpsCounter("0", font);
     sf::Text dotCounter("0", font);
+    sf::Text window_scale("0", font);
+    sf::Text graph_scale("0", font);
     sf::Text textBox("", font);
-    dotCounter.move(sf::Vector2f(0,60));
+    dotCounter.move(0,60);
+    window_scale.move(0,120);
+    graph_scale.move(0,180);
 
     sf::RectangleShape verticalBar(sf::Vector2f(VERTICAL_BAR_WIDTH ,SCREEN_HEIGHT));
     verticalBar.setFillColor(sf::Color(50,50,50));
@@ -72,8 +76,12 @@ int main()
     while (window.isOpen()){
         window.setFramerateLimit(framerate);
         sf::Time elapsed = clock.restart();
-        fpsCounter.setString(to_string(1000000/elapsed.asMicroseconds()));
-        dotCounter.setString(to_string(graph.dots.size()));
+        if (debug) {
+            fpsCounter.setString(to_string(1000000/elapsed.asMicroseconds()));
+            dotCounter.setString(to_string(graph.dots.size()));
+            window_scale.setString(to_string(width_ratio));
+            graph_scale.setString(to_string(graph.scale));
+        }
         
         // check all the window's events that were triggered since the last iteration of the loop
         sf::Event event;
@@ -257,6 +265,9 @@ int main()
         if (debug) {
             window.draw(fpsCounter);
             window.draw(dotCounter);
+            window.draw(window_scale);
+            window.draw(graph_scale);
+            window.draw(graph.origin);
         }
         sidePanel.draw(window);
         window.setView(window.getDefaultView());

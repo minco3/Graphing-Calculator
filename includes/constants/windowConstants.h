@@ -17,7 +17,10 @@ const int CONST_SCALE = 30;
 
 const float GRAPH_WIDTH_RATIO = 0.75f;
 
+int GRAPH_LINE_COUNT = 32; // ONE AXIS
+
 const sf::Color graphColor(75,75,75);
+const sf::Color graphLineColor(25,25,25);
 const sf::Color sidePanelColor(100,100,100);
 
 #endif // WINDOW_CONSTANTS_H
