@@ -22,7 +22,7 @@ Queue<Token*> strToInfix(string str) {
         switch (str[i]) {
             case '0' ... '9':
                 word.clear();
-                while (str[i]=='.'||str[i]>='0'&&str[i]<='9'){
+                while (i<=str.length()&&str[i]=='.'||str[i]>='0'&&str[i]<='9'){
                     word+=str[i++];
                 }
                 i--;
