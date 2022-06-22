@@ -45,6 +45,9 @@ class Graph {
     vector<sf::RectangleShape> axis;
     vector<sf::RectangleShape> graphLinesX;
     vector<sf::RectangleShape> graphLinesY;
+
+    int rangeX;
+    int rangeY;
      
     float scale = 1;
 
@@ -78,18 +81,22 @@ Graph::Graph(sf::Font& newFont) {
         axis[i].setFillColor(sf::Color::Black);
     }
 
+    sf::RectangleShape lineX(sf::Vector2f(1, SCREEN_HEIGHT*3));
+    lineX.setOrigin(lineX.getSize().x/2, lineX.getSize().y*0.3f);
+    lineX.setFillColor(graphLineColor);
+    graphLinesX.push_back(lineX);
+
+    sf::RectangleShape lineY(sf::Vector2f(SCREEN_WIDTH*3, 1));
+    lineY.setOrigin(lineY.getSize().x*0.3f, lineY.getSize().y/2);
+    lineY.setFillColor(graphLineColor);
+    graphLinesY.push_back(lineY);
+
     for (int i=0; i<GRAPH_LINE_COUNT; i++) { // X AXIS
-        sf::RectangleShape line(sf::Vector2f(1, SCREEN_HEIGHT));
-        line.setOrigin(line.getSize().x/2, 0);
-        line.setFillColor(graphLineColor);
-        graphLinesX.push_back(line);
+        graphLinesX.emplace_back(graphLinesX[0]);
     }
 
     for (int i=0; i<GRAPH_LINE_COUNT; i++) { // Y AXIS
-        sf::RectangleShape line(sf::Vector2f(SCREEN_WIDTH, 1));
-        line.setOrigin(0, line.getSize().y/2);
-        line.setFillColor(graphLineColor);
-        graphLinesY.push_back(line);
+        graphLinesY.emplace_back(graphLinesY[0]);
     }
 
     updateBounds();
@@ -135,10 +142,10 @@ void Graph::draw(sf::RenderWindow& window) {
     window.setView(view);
     window.draw(background);
 
-    for (int i=0; i<graphLinesX.size(); i++) {
+    for (int i=0; i<min(rangeX,(int)graphLinesX.size()); i++) {
         window.draw(graphLinesX[i]);
     }
-    for (int i=0; i<graphLinesY.size(); i++) {
+    for (int i=0; i<min(rangeY,(int)graphLinesY.size()); i++) {
         window.draw(graphLinesY[i]);
     }
     for (int i=0; i<axis.size(); i++) {
@@ -166,7 +173,7 @@ void Graph::resize(sf::Vector2f size) {
     reset();
     plot();
     updateBounds();
-    
+    updateGraphLines();
 }
 
 void Graph::zoom(float factor, sf::Vector2i mousePos) {
@@ -184,7 +191,7 @@ void Graph::zoom(float factor, sf::Vector2i mousePos) {
         } 
     }
     if (scale<0.075) scale = 0.075;
-    if (scale>1000) scale = 1000;
+    if (scale>10) scale = 10;
     // std::cout << scale << std::endl;
     reset();
     plot();
@@ -209,6 +216,7 @@ void Graph::move(sf::Vector2f deltaPos) {
         lines[i].move(deltaPos);
     }
     updateBounds();
+    updateGraphLines();
 }
 
 void Graph::resetZoom() {
@@ -219,6 +227,7 @@ void Graph::resetZoom() {
     reset();
     plot();
     updateBounds();
+    updateGraphLines();
 }
 
 void Graph::addExpression(std::string str) {
@@ -245,19 +254,29 @@ void Graph::updateBounds() {
 }
 
 void Graph::updateGraphLines() {
-    float lower = (-origin.getPosition().x)/CONST_SCALE*scale, upper = (view.getSize().x-origin.getPosition().x)/CONST_SCALE*scale;
-    float lowerY = (-origin.getPosition().y)/CONST_SCALE*scale, upperY = (view.getSize().y-origin.getPosition().y)/CONST_SCALE*scale;
+    float lower = (0-origin.getPosition().x)/CONST_SCALE*scale, upper = (view.getSize().x-origin.getPosition().x)/CONST_SCALE*scale;
+    float lowerY = (0-origin.getPosition().y)/CONST_SCALE*scale, upperY = (view.getSize().y-origin.getPosition().y)/CONST_SCALE*scale;
+    
+    int graphLineScale = scale>=1 ? (int)scale : 1;
 
-    int graphLineGapX = (upper-lower)/GRAPH_LINE_COUNT;
+    rangeX = (upper-lower)/graphLineScale+2;
+    rangeY = (upperY-lowerY)/graphLineScale+2;
 
-    for (int i=0; i<GRAPH_LINE_COUNT; i++) { //X AXIS
-        graphLinesX[i].setPosition(lower+i*graphLineGapX*CONST_SCALE/scale, 0);
+    //std::cout<< int(lower) << ", " << int(upper) << "\n" << int(lowerY) << ", " << int(upperY) << "scale" << graphLineScale << std::endl;
+
+
+    for (int i=0; i<rangeX; i++) { //X AXIS
+        if (i>graphLinesX.size())
+            graphLinesX.emplace_back(graphLinesX[0]);
+        graphLinesX[i].setPosition(((int(lower)-int(lower)%graphLineScale)+i*graphLineScale)*CONST_SCALE/scale+origin.getPosition().x, 0);
     }
 
-    int graphLineGapY = (upperY-lowerY)/GRAPH_LINE_COUNT;
 
-    for (int i=0; i<GRAPH_LINE_COUNT; i++) { // Y AXIS
-        graphLinesY[i].setPosition(0, lowerY*i*CONST_SCALE/scale);
+    for (int i=0; i<rangeY; i++) { // Y AXIS
+        if (i>graphLinesY.size())
+            graphLinesY.emplace_back(graphLinesY[0]);
+        // std::cout << int(lowerY)+i*graphLineGapY << std::endl;
+        graphLinesY[i].setPosition(0, ((int(lowerY)-int(lowerY)%graphLineScale)+i*graphLineScale)*CONST_SCALE/scale+origin.getPosition().y);
     }
 
 }

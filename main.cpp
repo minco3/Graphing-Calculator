@@ -40,10 +40,12 @@ int main()
     sf::Text dotCounter("0", font);
     sf::Text window_scale("0", font);
     sf::Text graph_scale("0", font);
+    sf::Text mouse_pos("0,0", font);
     sf::Text textBox("", font);
     dotCounter.move(0,60);
     window_scale.move(0,120);
     graph_scale.move(0,180);
+    mouse_pos.move(0,240);
 
     sf::RectangleShape verticalBar(sf::Vector2f(VERTICAL_BAR_WIDTH ,SCREEN_HEIGHT));
     verticalBar.setFillColor(sf::Color(50,50,50));
@@ -123,6 +125,15 @@ int main()
                     graph.plot();
                 }
 
+                if (debug) {
+                    mouse_pos.setString(
+                        to_string(-(graph.origin.getPosition().x-event.mouseMove.x)/CONST_SCALE*graph.scale)
+                        +", "
+                        +to_string((graph.origin.getPosition().y-event.mouseMove.y)/CONST_SCALE*graph.scale)
+                    );
+                }
+
+
                 for (int i=0; i<sidePanel.expressionList.size(); i++) {
                     sf::FloatRect textBounds = sidePanel.expressionList[i].getGlobalBounds();
                     textBounds.left += graph.view.getSize().x;
@@ -173,6 +184,30 @@ int main()
                             sidePanel.expressionList.pop_back();
                             graph.plot();
                             break;
+                    case 71: // LEFT
+                        if (event.key.control)
+                            graph.move(sf::Vector2f(80,0));
+                        else
+                            graph.move(sf::Vector2f(40,0));
+                        break;
+                    case 72: // RIGHT
+                        if (event.key.control)
+                            graph.move(sf::Vector2f(-80,0));
+                        else
+                            graph.move(sf::Vector2f(-40,0));
+                        break;
+                    case 73: // UP
+                        if (event.key.control)
+                            graph.move(sf::Vector2f(0,80));
+                        else
+                            graph.move(sf::Vector2f(0,40));
+                        break;
+                    case 74: // DOWN
+                        if (event.key.control)
+                            graph.move(sf::Vector2f(0,-80));
+                        else
+                            graph.move(sf::Vector2f(0,-40));
+                        break;
                     case 87: //F3
                         debug = !debug;
                     default:
@@ -268,6 +303,7 @@ int main()
             window.draw(window_scale);
             window.draw(graph_scale);
             window.draw(graph.origin);
+            window.draw(mouse_pos);
         }
         sidePanel.draw(window);
         window.setView(window.getDefaultView());
