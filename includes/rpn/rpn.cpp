@@ -47,6 +47,8 @@ double RPN::operator() (double value) { // used for running the alg
                     _s.push(acos(_s.pop()));
                 else if (_function == "arctan")
                     _s.push(atan(_s.pop()));
+                else if (_function == "log")
+                    _s.push(log(_s.pop()));
                 break;
             default:
                 break;
