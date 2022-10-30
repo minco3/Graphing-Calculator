@@ -75,7 +75,7 @@ Thumbs.db
 CMakeCache.txt
 CMakeFiles/
 bin/
-build/
+build/*
 cmake_install.cmake
 googletest/
 

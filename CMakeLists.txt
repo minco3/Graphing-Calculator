@@ -1,18 +1,5 @@
 cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
-project(cs3a)
-
-#. . . . . . . . . . . . . . . . . . . .
-include(GNUInstallDirs)
-if(MSVC)
-    add_compile_options(/W4)
-    add_link_options(/W4)
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/bin)
-    # message("compiler: MSVC")
-else()
-    # message("compiler: NOT MSVC")
-    # add_compile_options(-Wall -Wextra -pedantic -Werror -Wl,--fatal-warnings)
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-endif()
+project(Graphing_Calculator)
 
 
 # place binaries and libraries according to GNU standards

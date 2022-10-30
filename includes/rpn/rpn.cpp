@@ -49,6 +49,8 @@ double RPN::operator() (double value) { // used for running the alg
                     _s.push(atan(_s.pop()));
                 else if (_function == "log")
                     _s.push(log(_s.pop()));
+                else if (_function == "sqrt")
+                    _s.push(sqrt(_s.pop()));
                 break;
             default:
                 break;

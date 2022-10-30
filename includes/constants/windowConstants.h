@@ -11,7 +11,7 @@ const float VERTICAL_BAR_WIDTH = 2;
 
 const float res = 2000.f;
 
-std::string fontPath = "../../NotoSans-Medium.ttf";
+std::string fontPath = "../NotoSans-Medium.ttf";
 
 const int CONST_SCALE = 30;
 
